@@ -2,7 +2,7 @@
 #include <type_traits>
 #include "type.hpp"
 
-namespace orz { namespace detail
+namespace vt { namespace detail
 {
     /////////////////////////////////////////////////////////////////////////
     // operations on a type list
@@ -49,7 +49,7 @@ namespace orz { namespace detail
         using type = U;
         bool constexpr static value = true;
     };
-    
+
     template
         < template<typename> class M
         , typename ...T

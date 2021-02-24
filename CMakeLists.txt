@@ -1,5 +1,5 @@
 # cmake requirement
-cmake_minimum_required(VERSION 3.14...3.20)
+cmake_minimum_required(VERSION 3.19...3.20)
 
 # project infomation
 project(uncat
@@ -9,8 +9,8 @@ project(uncat
 )
 
 # provide options for users
-option(UNCAT_BUILD_TESTS    "build all test programs"   ON)
-option(UNCAT_BUILD_EXAMPLES "build all sample programs" ON)
+option(UNCAT_BUILD_TESTS    "build all test programs"   OFF)
+option(UNCAT_BUILD_EXAMPLES "build all sample programs" OFF)
 
 # set global properties or options
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)

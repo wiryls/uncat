@@ -1,7 +1,7 @@
 #pragma once
 #include <type_traits>
 
-namespace orz { namespace detail
+namespace vt { namespace detail
 {
     /////////////////////////////////////////////////////////////////////////
     // operations on limited number of types
@@ -30,18 +30,21 @@ namespace orz { namespace detail
     };
 
     /// same_to_type partially fills a std::is_same with T.
-    template<typename T>
-    struct same_to_type
+    template
+        < typename T
+        > struct same_to_type
     {
         template<typename U>
         using type = std::is_same<T, U>;
     };
 
-    template<template<typename> class T>
-    struct not_value_type
+    template
+        < template<typename> class T
+        > struct not_value_type
     {
-        template<typename U>
-        struct type
+        template
+            < typename U
+            > struct type
         {
             auto constexpr static value = !T<U>::value;
         };

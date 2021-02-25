@@ -22,7 +22,7 @@ namespace pw
 
     public:
         template<typename T>
-        bool_t<T> enqueue(T && task);
+        bool_t<T> cross(T && task);
 
     public:
          world_line(std::size_t number_of_lines = 1);
@@ -30,22 +30,22 @@ namespace pw
 
     private:
         void one_for_all();
-        void all_for_all();
+        void one_for_one();
 
     private:
         bool                    running;
         std::list<task_type>    tasks;
         std::list<std::thread>  workers;
         std::condition_variable condition;
-        std::mutex              lock;
+        std::mutex              mutex;
     };
 
     template<typename T>
-    inline world_line::bool_t<T> world_line::enqueue(T && task)
+    inline world_line::bool_t<T> world_line::cross(T && task)
     {
         auto o = true;
         {
-            std::lock_guard<std::mutex> _(lock);
+            std::scoped_lock _(mutex);
             if ((o = running, o))
                 tasks.push_back(std::forward<T>(task));
         }
@@ -60,18 +60,20 @@ namespace pw
         , tasks()
         , workers()
         , condition()
-        , lock()
+        , mutex()
     {
-        if /*___*/ (number_of_lines == 1)
+        if         (number_of_lines ==  0)
+            running = false;
+        else if    (number_of_lines ==  1)
             workers.emplace_back(&world_line::one_for_all, this);
-        else while (number_of_lines != 0 && number_of_lines --> 0)
-            workers.emplace_back(&world_line::all_for_all, this);
+        else while (number_of_lines --> 0)
+            workers.emplace_back(&world_line::one_for_one, this);
     }
 
     inline world_line::~world_line()
     {
         {
-            std::lock_guard<std::mutex> _(lock);
+            std::scoped_lock _(mutex);
             running = false;
         }
         condition.notify_all();
@@ -85,7 +87,7 @@ namespace pw
         do {
             todo.clear();
             {
-                auto ul = std::unique_lock<std::mutex>(lock);
+                auto ul = std::unique_lock(mutex);
                 condition.wait(ul, [&] { return !tasks.empty() || !running; });
                 std::swap(todo, tasks);
             }
@@ -95,7 +97,7 @@ namespace pw
         while (!todo.empty());
     }
 
-    inline void world_line::all_for_all()
+    inline void world_line::one_for_one()
     {
         auto runn = true;
         auto work = false;
@@ -103,7 +105,7 @@ namespace pw
         {
             auto todo = task_type();
             {
-                auto ul = std::unique_lock<std::mutex>(lock);
+                auto ul = std::unique_lock(mutex);
                 condition.wait(ul, [&] { return !tasks.empty() || !running; });
 
                 runn = running;

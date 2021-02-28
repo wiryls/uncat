@@ -3,7 +3,7 @@
 #include <mutex>
 #include <catch2/catch_test_macros.hpp>
 
-#include <pw/world_line.hpp>
+#include <uncat/parallel_world.hpp>
 
 TEST_CASE("world_line(0) is dead silence", "[world_line]")
 {
@@ -11,7 +11,7 @@ TEST_CASE("world_line(0) is dead silence", "[world_line]")
     {
         auto v = std::vector<int>();
         {
-            auto ws = pw::world_line(0);
+            auto ws = uncat::world_line(0);
             auto ok = ws.cross([&v] { v.push_back(0); });
             REQUIRE(!ok);
         }
@@ -26,7 +26,7 @@ TEST_CASE("world_line(1) is strictly ordered", "[world_line]")
         auto n = std::size_t(100);
         auto v = std::vector<std::size_t>();
         {
-            auto ws = pw::world_line(1);
+            auto ws = uncat::world_line(1);
             for (auto i = std::size_t(); i < n; ++i)
                 ws.cross([&v, i = i] { v.push_back(i); });
         }
@@ -42,7 +42,7 @@ TEST_CASE("world_line(1) is strictly ordered", "[world_line]")
         auto v = std::vector<std::size_t>();
         {
             auto xs = std::vector<std::size_t>{ 0, 1, 2, 3, 4, 5, 6, 7 };
-            auto ws = pw::world_line(1);
+            auto ws = uncat::world_line(1);
             {
                 using ctyp = std::vector<std::size_t>;
                 using iter = ctyp::const_iterator;
@@ -75,7 +75,7 @@ TEST_CASE("world_line(n, n >= 2) is a mess", "[world_line]")
         auto v = std::vector<std::size_t>();
         auto m = std::mutex();
         {
-            auto ws = pw::world_line(8);
+            auto ws = uncat::world_line(8);
             for (auto i = std::size_t(); i < x * y; i += x)
             {
                 auto l = i;

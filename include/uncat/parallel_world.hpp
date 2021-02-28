@@ -1,12 +1,13 @@
 #pragma once
-#include <list>
+#include <deque>
+#include <vector>
 #include <type_traits>
 #include <functional>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
 
-namespace pw
+namespace uncat
 {
     struct world_line
     {
@@ -33,11 +34,11 @@ namespace pw
         void one_for_one();
 
     private:
-        bool                    running;
-        std::list<task_type>    tasks;
-        std::list<std::thread>  workers;
-        std::condition_variable condition;
-        std::mutex              mutex;
+        bool                     running;
+        std::deque<task_type>    tasks;
+        std::vector<std::thread> workers;
+        std::condition_variable  condition;
+        std::mutex               mutex;
     };
 
     template<typename T>
@@ -87,12 +88,12 @@ namespace pw
         do {
             todo.clear();
             {
-                auto ul = std::unique_lock(mutex);
-                condition.wait(ul, [&] { return !tasks.empty() || !running; });
+                auto lock = std::unique_lock(mutex);
+                condition.wait(lock, [&] { return !tasks.empty() || !running; });
                 std::swap(todo, tasks);
             }
-            for (auto & f : todo)
-                f();
+            for (auto & func : todo)
+                func();
         }
         while (!todo.empty());
     }
@@ -105,8 +106,8 @@ namespace pw
         {
             auto todo = task_type();
             {
-                auto ul = std::unique_lock(mutex);
-                condition.wait(ul, [&] { return !tasks.empty() || !running; });
+                auto lock = std::unique_lock(mutex);
+                condition.wait(lock, [&] { return !tasks.empty() || !running; });
 
                 runn = running;
                 work = !tasks.empty();

@@ -1,17 +1,90 @@
 #pragma once
 #include <type_traits>
-#include "type.hpp"
 
-namespace vt { namespace detail
+namespace uncat { namespace detail
+{
+    /////////////////////////////////////////////////////////////////////////
+    // operations on limited number of types
+
+    /// a helper to pack types into a type.
+    template
+        < typename ...T
+        > struct pack {};
+
+    /// select_type returns L if C else R
+    template
+        < bool     C
+        , typename L
+        , typename R
+        > struct select_type
+    {
+        using type = R;
+    };
+
+    template
+        < typename L
+        , typename R
+        > struct select_type<true, L, R>
+    {
+        using type = L;
+    };
+
+    /// same_to_type partially fills a std::is_same with T.
+    template
+        < typename T
+        > struct same_to_type
+    {
+        template<typename U>
+        using type = std::is_same<T, U>;
+    };
+
+    template
+        < template<typename> class T
+        > struct not_value_type
+    {
+        template
+            < typename U
+            > struct type
+        {
+            auto constexpr static value = !T<U>::value;
+        };
+    };
+}}
+
+namespace uncat { namespace detail
 {
     /////////////////////////////////////////////////////////////////////////
     // operations on a type list
+
+    /// last type in list
+    template
+        < template<typename ...> class C
+        , typename T
+        > struct last_type_base
+    {};
+
+    template
+        < template<typename ...> class C
+        , typename ...T
+        , typename    U
+        > struct last_type_base<C, C<U, T...>>
+    {
+        using type = typename last_type_base<C, C<T...>>::type;
+    };
+
+    template
+        < template<typename ...> class C
+        , typename T
+        > struct last_type_base<C, C<T>>
+    {
+        using type = T;
+    };
 
     /// find a type T by M<T>::value
     template
         < template<typename ...> class C // type containter
         , template<typename>     class M // comparison
-        , typename T                     // is C<U...>
+        , typename T                     // something like C<U...>
         , typename = void                // SFINAE
         > struct find_if_base
     {
@@ -27,7 +100,10 @@ namespace vt { namespace detail
             < C
             , M
             , C<U, T...>
-            , std::void_t<typename find_if_base<C, M, C<T...>>::type>
+            , std::enable_if_t
+                < !M<U>::value
+                , std::void_t<typename find_if_base<C, M, C<T...>>::type>
+                >
             >
     {
         using type = typename find_if_base<C, M, C<T...>>::type;
@@ -50,11 +126,6 @@ namespace vt { namespace detail
         bool constexpr static value = true;
     };
 
-    template
-        < template<typename> class M
-        , typename ...T
-        > struct find_if : find_if_base<pack, M, pack<T...>>
-    {};
 
     /// filter a type list to pack<...>
     template

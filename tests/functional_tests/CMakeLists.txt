@@ -5,8 +5,8 @@ string(TOLOWER ${name} name)
 
 # source lists
 set(sources
-    pw_test.cpp
-    vt_test.cpp)
+    types_test.cpp
+    parallel_world_test.cpp)
 
 # executable
 add_executable         (${name} ${sources})

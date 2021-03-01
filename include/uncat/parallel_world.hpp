@@ -12,18 +12,14 @@ namespace uncat
     struct world_line
     {
     private:
-        using task_type = std::function<void()>;
+        using task_t = std::function<void()>;
 
     public:
         template<typename T>
-        using bool_t = std::enable_if_t
-            < std::is_assignable_v<task_type, T>
-            , bool
-            >;
+        using bool_t = std::enable_if_t<std::is_assignable_v<task_t, T>, bool>;
 
     public:
-        template<typename T>
-        bool_t<T> cross(T && task);
+        template<typename T> bool_t<T> cross(T && task);
 
     public:
          world_line(std::size_t number_of_lines = 1);
@@ -35,20 +31,20 @@ namespace uncat
 
     private:
         bool                     running;
-        std::deque<task_type>    tasks;
-        std::vector<std::thread> workers;
+        std::deque<task_t>       points;
+        std::vector<std::thread> runners;
         std::condition_variable  condition;
         std::mutex               mutex;
     };
 
-    template<typename T>
-    inline world_line::bool_t<T> world_line::cross(T && task)
+    template<typename T> inline
+    world_line::bool_t<T> world_line::cross(T && task)
     {
         auto o = true;
         {
             std::scoped_lock _(mutex);
             if ((o = running, o))
-                tasks.push_back(std::forward<T>(task));
+                points.push_back(std::forward<T>(task));
         }
 
         if (o)
@@ -58,17 +54,18 @@ namespace uncat
 
     inline world_line::world_line(std::size_t number_of_lines)
         : running(true)
-        , tasks()
-        , workers()
+        , points()
+        , runners()
         , condition()
         , mutex()
     {
+        runners.reserve(number_of_lines);
         if         (number_of_lines ==  0)
             running = false;
         else if    (number_of_lines ==  1)
-            workers.emplace_back(&world_line::one_for_all, this);
+            runners.emplace_back(&world_line::one_for_all, this);
         else while (number_of_lines --> 0)
-            workers.emplace_back(&world_line::one_for_one, this);
+            runners.emplace_back(&world_line::one_for_one, this);
     }
 
     inline world_line::~world_line()
@@ -78,19 +75,19 @@ namespace uncat
             running = false;
         }
         condition.notify_all();
-        for (auto & worker : workers)
-            worker.join();
+        for (auto & runner : runners)
+            runner.join();
     }
 
     inline void world_line::one_for_all()
     {
-        auto todo = decltype(tasks)();
+        auto todo = decltype(points)();
         do {
             todo.clear();
             {
                 auto lock = std::unique_lock(mutex);
-                condition.wait(lock, [&] { return !tasks.empty() || !running; });
-                std::swap(todo, tasks);
+                condition.wait(lock, [&] { return !points.empty() || !running; });
+                std::swap(todo, points);
             }
             for (auto & func : todo)
                 func();
@@ -100,26 +97,26 @@ namespace uncat
 
     inline void world_line::one_for_one()
     {
-        auto runn = true;
-        auto work = false;
-        while (runn || work)
+        auto loop = true;
+        auto grab = false;
+        while (loop || grab)
         {
-            auto todo = task_type();
+            auto todo = task_t();
             {
                 auto lock = std::unique_lock(mutex);
-                condition.wait(lock, [&] { return !tasks.empty() || !running; });
+                condition.wait(lock, [&] { return !points.empty() || !running; });
 
-                runn = running;
-                work = !tasks.empty();
+                loop = running;
+                grab = !points.empty();
 
-                if (work)
+                if (grab)
                 {
-                    todo = std::move(tasks.front());
-                    tasks.pop_front();
+                    todo = std::move(points.front());
+                    points.pop_front();
                 }
             }
 
-            if (work)
+            if (grab)
                 todo();
         }
     }

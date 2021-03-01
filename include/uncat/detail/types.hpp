@@ -16,7 +16,7 @@ namespace uncat { namespace detail
         < bool     C
         , typename L
         , typename R
-        > struct select_type
+        > struct select
     {
         using type = R;
     };
@@ -24,7 +24,7 @@ namespace uncat { namespace detail
     template
         < typename L
         , typename R
-        > struct select_type<true, L, R>
+        > struct select<true, L, R>
     {
         using type = L;
     };
@@ -32,22 +32,10 @@ namespace uncat { namespace detail
     /// same_to_type partially fills a std::is_same with T.
     template
         < typename T
-        > struct same_to_type
+        > struct same_to
     {
         template<typename U>
         using type = std::is_same<T, U>;
-    };
-
-    template
-        < template<typename> class T
-        > struct not_value_type
-    {
-        template
-            < typename U
-            > struct type
-        {
-            auto constexpr static value = !T<U>::value;
-        };
     };
 }}
 
@@ -60,22 +48,22 @@ namespace uncat { namespace detail
     template
         < template<typename ...> class C
         , typename T
-        > struct last_type_base
+        > struct last
     {};
 
     template
         < template<typename ...> class C
         , typename ...T
         , typename    U
-        > struct last_type_base<C, C<U, T...>>
+        > struct last<C, C<U, T...>>
     {
-        using type = typename last_type_base<C, C<T...>>::type;
+        using type = typename last<C, C<T...>>::type;
     };
 
     template
         < template<typename ...> class C
         , typename T
-        > struct last_type_base<C, C<T>>
+        > struct last<C, C<T>>
     {
         using type = T;
     };
@@ -86,7 +74,7 @@ namespace uncat { namespace detail
         , template<typename>     class M // comparison
         , typename T                     // something like C<U...>
         , typename = void                // SFINAE
-        > struct find_if_base
+        > struct find_if
     {
         bool constexpr static value = false;
     };
@@ -96,17 +84,17 @@ namespace uncat { namespace detail
         , template<typename>     class M
         , typename ...T
         , typename U
-        > struct find_if_base
+        > struct find_if
             < C
             , M
             , C<U, T...>
             , std::enable_if_t
                 < !M<U>::value
-                , std::void_t<typename find_if_base<C, M, C<T...>>::type>
+                , std::void_t<typename find_if<C, M, C<T...>>::type>
                 >
             >
     {
-        using type = typename find_if_base<C, M, C<T...>>::type;
+        using type = typename find_if<C, M, C<T...>>::type;
         bool constexpr static value = true;
     };
 
@@ -115,7 +103,7 @@ namespace uncat { namespace detail
         , template<typename>     class M
         , typename ...T
         , typename U
-        > struct find_if_base
+        > struct find_if
             < C
             , M
             , C<U, T...>
@@ -133,7 +121,7 @@ namespace uncat { namespace detail
         , template<typename>     class M
         , typename T
         , typename U
-        > struct filter_base
+        > struct filter
     {};
 
     template
@@ -142,12 +130,12 @@ namespace uncat { namespace detail
         , typename ...T
         , typename ...U
         , typename V
-        > struct filter_base<C, M, C<T...>, C<V, U...>>
+        > struct filter<C, M, C<T...>, C<V, U...>>
     {
-        using type = typename filter_base
+        using type = typename filter
             < C
             , M
-            , typename select_type
+            , typename select
                 < M<V>::value
                 , C<T..., V>
                 , C<T...>
@@ -160,7 +148,7 @@ namespace uncat { namespace detail
         < template<typename ...> class C
         , template<typename>     class M
         , typename ...T
-        > struct filter_base<C, M, C<T...>, C<>>
+        > struct filter<C, M, C<T...>, C<>>
     {
         using type = C<T...>;
     };
@@ -171,7 +159,7 @@ namespace uncat { namespace detail
         , typename L
         , typename R
         , typename = void
-        > struct is_subset_base
+        > struct is_subset
     {
         bool constexpr static value = false;
     };
@@ -180,13 +168,13 @@ namespace uncat { namespace detail
         < template<typename ...> class C
         , typename ...L
         , typename ...R
-        > struct is_subset_base
+        > struct is_subset
             < C
             , C<L...>
             , C<R...>
-            , std::void_t<typename find_if_base
+            , std::void_t<typename find_if
                 < C
-                , same_to_type<L>::template type
+                , same_to<L>::template type
                 , C<R...>
                 >::type...>
             >
@@ -195,3 +183,54 @@ namespace uncat { namespace detail
     };
 
 }}
+
+namespace uncat
+{
+    /////////////////////////////////////////////////////////////////////////
+    // export
+
+    struct types
+    {
+        template
+            < bool     C
+            , typename L
+            , typename R
+            > using select_t = typename detail::select<C, L, R>::type;
+
+        template
+            < typename ...T
+            > struct last : detail::last
+            < detail::pack
+            , detail::pack<T...>
+            >
+        {};
+
+        template
+            < typename ...T
+            > using last_t = typename last<T...>::type;
+
+        template
+            < template<typename> class M
+            , typename ...T
+            > struct find_if : detail::find_if
+            < detail::pack
+            , M
+            , detail::pack<T...>
+            >
+        {};
+
+        template
+            < typename    T
+            , typename ...U
+            > struct find : find_if
+            < detail::same_to<T>::template type
+            , U...
+            >
+        {};
+
+        template
+            < typename    T
+            , typename ...U
+            > using find_t = typename find<T, U...>::type;
+    };
+}

@@ -101,7 +101,7 @@ namespace uncat
             auto sign = std::make_shared<std::promise<void>>();
             auto wait = sign->get_future();
 
-            done = todo.push([this, name, sign = std::move(sign), func = std::move(func)]
+            done = todo.cross([this, name, sign = std::move(sign), func = std::move(func)]
             {
                 add_contact_unsafe<U>(name, func);
                 sign->set_value();

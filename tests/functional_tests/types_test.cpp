@@ -1,6 +1,17 @@
 #include <catch2/catch_test_macros.hpp>
 #include <uncat/detail/types.hpp>
 
+TEST_CASE("reverse", "[types]")
+{
+    using uncat::detail::pack;
+    using uncat::detail::reverse;
+
+    REQUIRE(std::is_same_v<typename reverse<pack, pack<void, int, double>>::type, pack<double, int, void>>);
+    REQUIRE(std::is_same_v<typename reverse<pack, pack<void, void, void>>::type, pack<void, void, void>>);
+    REQUIRE(std::is_same_v<typename reverse<pack, pack<>>::type, pack<>>);
+}
+
+
 TEST_CASE("find_if", "[types]")
 {
     using uncat::detail::pack;
@@ -42,4 +53,21 @@ TEST_CASE("is_subset", "[types]")
     REQUIRE(is_subset<pack, pack<     void        >, pack<int, void, double>>::value == true );
     REQUIRE(is_subset<pack, pack<                 >, pack<int, void, double>>::value == true );
     REQUIRE(is_subset<pack, pack<                 >, pack<                 >>::value == true );
+}
+
+TEST_CASE("distinct", "[types]")
+{
+    using uncat::detail::pack;
+    using uncat::detail::distinct;
+    using uncat::detail::distinct_stable;
+
+    REQUIRE(std::is_same_v<typename distinct<pack, pack<int, int, double>>::type, pack<int, double>>);
+    REQUIRE(std::is_same_v<typename distinct<pack, pack<int, double, int>>::type, pack<double, int>>);
+    REQUIRE(std::is_same_v<typename distinct<pack, pack<int, int, int, int>>::type, pack<int>>);
+    REQUIRE(std::is_same_v<typename distinct<pack, pack<int, double, double, int>>::type, pack<double, int>>);
+
+    REQUIRE(std::is_same_v<typename distinct_stable<pack, pack<int, int, double>>::type, pack<int, double>>);
+    REQUIRE(std::is_same_v<typename distinct_stable<pack, pack<int, double, int>>::type, pack<int, double>>);
+    REQUIRE(std::is_same_v<typename distinct_stable<pack, pack<int, int, int, int>>::type, pack<int>>);
+    REQUIRE(std::is_same_v<typename distinct_stable<pack, pack<int, double, double, int>>::type, pack<int, double>>);
 }

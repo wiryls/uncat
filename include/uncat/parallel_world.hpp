@@ -22,7 +22,7 @@ namespace uncat
         template<typename T> bool_t<T> cross(T && task);
 
     public:
-         world_line(std::size_t number_of_lines = 1);
+         world_line(std::size_t size = 1);
         ~world_line();
 
     private:
@@ -52,19 +52,19 @@ namespace uncat
         return o;
     }
 
-    inline world_line::world_line(std::size_t number_of_lines)
+    inline world_line::world_line(std::size_t size)
         : running(true)
         , points()
         , runners()
         , condition()
         , mutex()
     {
-        runners.reserve(number_of_lines);
-        if         (number_of_lines ==  0)
+        runners.reserve(size);
+        if         (size ==  0)
             running = false;
-        else if    (number_of_lines ==  1)
+        else if    (size ==  1)
             runners.emplace_back(&world_line::one_for_all, this);
-        else while (number_of_lines --> 0)
+        else while (size --> 0)
             runners.emplace_back(&world_line::one_for_one, this);
     }
 

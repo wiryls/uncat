@@ -5,6 +5,7 @@ string(TOLOWER ${name} name)
 
 # source lists
 set(sources
+    finite_state_machine_test.cpp
     messenger_test.cpp
     parallel_world_test.cpp
     types_test.cpp)

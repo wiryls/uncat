@@ -11,10 +11,10 @@ set(sources
     types_test.cpp)
 
 # executable
-add_executable         (${name} ${sources})
-set_target_properties  (${name} PROPERTIES FOLDER "${PROJECT_NAME}/tests")
-target_link_libraries  (${name} PRIVATE Catch2::Catch2WithMain uncat)
-target_compile_features(${name} PRIVATE cxx_std_17)
+add_executable       (${name} ${sources})
+set_target_properties(${name} PROPERTIES FOLDER "${PROJECT_NAME}/tests")
+set_target_properties(${name} PROPERTIES CXX_STANDARD 17)
+target_link_libraries(${name} PRIVATE Catch2::Catch2WithMain uncat)
 
 # add for CTest
 add_test(NAME ${name} COMMAND ${name})

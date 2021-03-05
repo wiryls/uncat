@@ -22,8 +22,8 @@ namespace uncat
         template<typename T> bool_t<T> cross(T && task);
 
     public:
-         world_line(std::size_t size = 1);
-        ~world_line();
+        explicit world_line(std::size_t size = 1);
+                ~world_line();
 
     private:
         void one_for_all();

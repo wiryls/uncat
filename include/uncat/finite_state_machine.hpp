@@ -100,7 +100,7 @@ namespace uncat
         , detail::transitions<F, transition, T...>
     {
     private:
-        template<typename ...T> struct list {};
+        template<typename ...V> struct list {};
         using parser = detail::transitions_parser<list, transition, T...>;
 
     public:

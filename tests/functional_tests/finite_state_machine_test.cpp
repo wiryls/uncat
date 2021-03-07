@@ -52,7 +52,6 @@ TEST_CASE("coin operated turnstile", "[finite_state_machine_test]")
             REQUIRE(m.accept(push_action()) == true);
         }
     }
-
     SECTION("with another constructor")
     {
         auto m = state_machine
@@ -69,7 +68,6 @@ TEST_CASE("coin operated turnstile", "[finite_state_machine_test]")
             REQUIRE(m.accept(coin_action()) == false);
         }
     }
-
     SECTION("as a member variable")
     {
         struct wrapper

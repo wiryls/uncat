@@ -72,7 +72,8 @@ namespace uncat
         , typename ...T
         > struct state_machine
         : private types
-        , private std::void_t<typename detail::transition_parser<F, detail::pack<T...>>::functor>
+        , private detail::pack<typename detail::transition_parser<F, detail::pack<T...>>::functor>
+        // if an error happens at functor, it means `F` may not support some state-input pairs.
     {
     private:
         using parser = detail::transition_parser<F, detail::pack<T...>>;

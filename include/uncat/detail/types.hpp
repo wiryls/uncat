@@ -4,7 +4,7 @@
 namespace uncat { namespace detail
 {
     /////////////////////////////////////////////////////////////////////////
-    // operations on limited number of types
+    // limited types -> type / value
 
     /// remove const reference of a type
     template
@@ -29,21 +29,28 @@ namespace uncat { namespace detail
         using type = L;
     };
 
-    /// same_to_type partially fills a std::is_same with T.
+    /// curry
+    template
+        < template<typename ...> class T
+        , typename                 ... U
+        > struct curry
+    {
+        template
+            < typename ... V
+            > using type = T<U..., V...>;
+    };
+
+    /// same_to partially fills a std::is_same with T.
     template
         < typename T
-        > struct same_to
-    {
-        template<typename U>
-        using type = std::is_same<T, U>;
-    };
+        > using same = curry<std::is_same, T>;
 
     /// make sure the functor F could be invoked like F()(T()...) -> R
     template
         < typename F
         , typename R
         , typename ...T
-        > struct functor_validator
+        > struct functor_pass
     {
         bool constexpr static value = false;
     };
@@ -51,7 +58,7 @@ namespace uncat { namespace detail
     template
         < typename F
         , typename ...T
-        > struct functor_validator
+        > struct functor_pass
             < F
             , decltype(std::declval<F>()(std::declval<T>() ...))
             , T...
@@ -60,62 +67,80 @@ namespace uncat { namespace detail
         using type = F;
         bool constexpr static value = true;
     };
+
+    /// 
 }}
 
 namespace uncat { namespace detail
 {
     /////////////////////////////////////////////////////////////////////////
-    // operations on a type list
+    // types -> type
+
+    /// a...b -> a
+    template
+        < typename     U
+        , typename ... T
+        > struct first
+    {
+        using type = U;
+    };
+
+    /// a...b -> b
+    template
+        < typename    U
+        , typename ...T
+        > struct last
+    {
+        using type = typename last<T...>::type;
+    };
+
+    template
+        < typename U
+        > struct last<U>
+    {
+        using type = U;
+    };
+
+    /// f -> g a -> f a
+    template
+        < template<typename ...> class M
+        , typename                     T
+        > struct map
+    {};
+
+    template
+        < template<typename ...> class F
+        , template<typename ...> class T
+        , typename                 ... V
+        > struct map<F, T<V...>>
+    {
+        using type = F<V...>;
+    };
+
+    /// (a -> bool) -> a... -> bool
+    template
+        < template<typename   > class F
+        , typename                ... T
+        > struct exist_if
+    {
+        bool constexpr static value = (F<T>::value || ...);
+    };
+
+}}
+
+namespace uncat { namespace detail
+{
+    /////////////////////////////////////////////////////////////////////////
+    // types -> types
 
     /// a helper to pack types into a type.
     template
         < typename ...T
         > struct pack {};
 
-    /// last type in list
+    /// [a] -> [b] -> [a, b]
     template
-        < template<typename ...> class C
-        , typename T
-        > struct last
-    {};
-
-    template
-        < template<typename ...> class C
-        , typename ...T
-        , typename    U
-        > struct last<C, C<U, T...>>
-    {
-        using type = typename last<C, C<T...>>::type;
-    };
-
-    template
-        < template<typename ...> class C
-        , typename T
-        > struct last<C, C<T>>
-    {
-        using type = T;
-    };
-
-    /// first type in list
-    template
-        < template<typename ...> class C
-        , typename T
-        > struct first
-    {};
-
-    template
-        < template<typename ...> class C
-        , typename ...T
-        , typename    U
-        > struct first<C, C<U, T...>>
-    {
-        using type = U;
-    };
-
-    /// join two lists
-    template
-        < template<typename ...> class C
-        , typename L
+        < typename L
         , typename R
         > struct join
     {};
@@ -124,142 +149,103 @@ namespace uncat { namespace detail
         < template<typename ...> class C
         , typename ...L
         , typename ...R
-        > struct join<C, C<L...>, C<R...>>
+        > struct join<C<L...>, C<R...>>
     {
         using type = C<L..., R...>;
     };
 
-    /// map a packed type to another packed type
+    /// [a...b] -> [b...a]
     template
-        < typename                     T
-        , template<typename ...> class U
-        > struct map
-    {};
-
-    template
-        < template<typename ...> class T
-        , template<typename ...> class U
-        , typename                 ... V
-        > struct map<T<V...>, U>
-    {
-        using type = U<V...>;
-    };
-
-    /// reverse
-    template
-        < template<typename ...> class C
-        , typename                     T
+        < typename T
         > struct reverse
     {};
 
     template
-        < template<typename ...> class C
-        , typename                 ... T
+        < template<typename ...> class T
         , typename                     U
-        > struct reverse<C, C<U, T...>>
+        , typename                 ... V
+        > struct reverse<T<U, V...>>
     {
         using type = typename join
-            < C
-            , typename reverse<C, C<T...>>::type
-            , C<U>
+            < typename reverse<T<V...>>::type
+            , T<U>
             >::type;
     };
 
     template
-        < template<typename ...> class C
-        > struct reverse<C, C<>>
+        < template<typename ...> class T
+        > struct reverse<T<>>
     {
-        using type = C<>;
+        using type = T<>;
     };
 
-    /// find a type T by M<T>::value
+    /// f -> [...] -> [..]
     template
-        < template<typename ...> class C // type containter
-        , template<typename>     class M // comparison
-        , typename T                     // something like C<U...>
-        , typename = void                // SFINAE
+        < template<typename> class F // filter functor
+        , typename T                 // something like T<U...>
+        > struct filter
+    {};
+
+    template
+        < template<typename   > class F
+        , template<typename...> class T
+        , typename                    U
+        , typename                ... V
+        > struct filter<F, T<U, V...>>
+    {
+        using type = typename join
+            < typename select<F<U>::value, T<U>, T<>>::type
+            , typename filter<F, T<V...>>::type
+            >::type;
+    };
+
+    template
+        < template<typename   > class F
+        , template<typename...> class T
+        > struct filter<F, T<>>
+    {
+        using type = T<>;
+    };
+
+    /// (a -> bool) -> a... -> type / bool
+    template
+        < template<typename> class F // comparison
+        , typename                 T // something like T<U...>
+        , typename = void            // SFINAE
         > struct find_if
     {
         bool constexpr static value = false;
     };
 
     template
-        < template<typename ...> class C
-        , template<typename>     class M
-        , typename ...T
-        , typename U
+        < template<typename   > class F
+        , template<typename...> class T
+        , typename                    U
+        , typename                ... V
         > struct find_if
-            < C
-            , M
-            , C<U, T...>
-            , std::enable_if_t
-                < !M<U>::value
-                , std::void_t<typename find_if<C, M, C<T...>>::type>
-                >
-            >
+        < F
+        , T<U, V...>
+        , std::enable_if_t<!F<U>::value && exist_if<F, V...>::value>
+        >
     {
-        using type = typename find_if<C, M, C<T...>>::type;
         bool constexpr static value = true;
+        using type = typename find_if<F, T<V...>>::type;
     };
 
     template
-        < template<typename ...> class C
-        , template<typename>     class M
-        , typename ...T
-        , typename U
-        > struct find_if
-            < C
-            , M
-            , C<U, T...>
-            , std::enable_if_t<M<U>::value>
-            >
+        < template<typename   > class F
+        , template<typename...> class T
+        , typename                    U
+        , typename                ... V
+        > struct find_if<F, T<U, V...>, std::enable_if_t<F<U>::value>>
     {
+        bool constexpr static value = true;
         using type = U;
-        bool constexpr static value = true;
-    };
-
-    /// filter a type list to pack<...>
-    template
-        < template<typename ...> class C
-        , template<typename>     class M
-        , typename T
-        , typename U
-        > struct filter
-    {};
-
-    template
-        < template<typename ...> class C
-        , template<typename>     class M
-        , typename ...T
-        , typename ...U
-        , typename V
-        > struct filter<C, M, C<T...>, C<V, U...>>
-    {
-        using type = typename filter
-            < C
-            , M
-            , typename select
-                < M<V>::value
-                , C<T..., V>
-                , C<T...>
-                >::type
-            , C<U...>
-            >::type;
-    };
-
-    template
-        < template<typename ...> class C
-        , template<typename>     class M
-        , typename ...T
-        > struct filter<C, M, C<T...>, C<>>
-    {
-        using type = C<T...>;
     };
 
     /// check if L is a subset of R.
     template
-        < template<typename ...> class C
-        , typename L
+        < typename L
         , typename R
         , typename = void
         > struct is_subset
@@ -272,12 +258,10 @@ namespace uncat { namespace detail
         , typename ...L
         , typename ...R
         > struct is_subset
-            < C
-            , C<L...>
+            < C<L...>
             , C<R...>
             , std::void_t<typename find_if
-                < C
-                , same_to<L>::template type
+                < same<L>::template type
                 , C<R...>
                 >::type...>
             >
@@ -287,8 +271,7 @@ namespace uncat { namespace detail
 
     /// distinct
     template
-        < template<typename ...> class C
-        , typename T
+        < typename T
         > struct distinct
     {};
 
@@ -296,43 +279,39 @@ namespace uncat { namespace detail
         < template<typename ...> class C
         , typename T
         , typename ...U
-        > struct distinct<C, C<T, U...>>
+        > struct distinct<C<T, U...>>
     {
         using type = typename join
-            < C
-            , typename select
-                < find_if<C, same_to<T>::template type, C<U...>>::value
+            < typename select
+                < find_if<same<T>::template type, C<U...>>::value
                 , C<>
                 , C<T>
                 >::type
-            , typename distinct<C, C<U...>>::type
+            , typename distinct<C<U...>>::type
             >::type;
     };
 
     template
         < template<typename ...> class C
-        > struct distinct<C, C<>>
+        > struct distinct<C<>>
     {
         using type = C<>;
     };
 
     /// distinct_stable
     template
-        < template<typename ...> class C
-        , typename T
+        < typename T
         > struct distinct_stable
     {};
 
     template
         < template<typename ...> class C
         , typename                 ... T
-        > struct distinct_stable<C, C<T...>>
+        > struct distinct_stable<C<T...>>
     {
         using type = typename reverse
-            < C
-            , typename distinct
-                < C
-                , typename reverse<C, C<T...>>::type
+            < typename distinct
+                < typename reverse<C<T...>>::type
                 >::type
             >::type;
     };
@@ -347,15 +326,14 @@ namespace uncat
     struct types
     {
         template
-            < typename                     T
-            , template<typename ...> class U
-            > using map_t = typename detail::map<T, U>::type;
+            < template<typename ...> class M
+            , typename                     T
+            > using map_t = typename detail::map<M, T>::type;
 
         template
-            < template<typename ...> class C
-            , typename L
+            < typename L
             , typename R
-            > using join_t = typename detail::join<C, L, R>::type;
+            > using join_t = typename detail::join<L, R>::type;
 
         template
             < bool     C
@@ -365,41 +343,34 @@ namespace uncat
 
         template
             < typename ...T
-            > using last_t = typename detail::last
-                < detail::pack
-                , detail::pack<T...>
-                >::type;
+            > using last_t = typename detail::last<T...>::type;
 
         template
             < typename ...T
-            > using first_t = typename detail::first
-                < detail::pack
-                , detail::pack<T...>
-                >::type;
+            > using first_t = typename detail::first<T...>::type;
 
         template
-            < template<typename> class M
-            , typename ...T
-            > struct find_if : detail::find_if
-            < detail::pack
-            , M
-            , detail::pack<T...>
-            >
-        {};
+            < template<typename> class F
+            , typename             ... T
+            > using find_if = detail::find_if<F, detail::pack<T...>>;
 
         template
             < typename    T
             , typename ...U
-            > struct find : find_if
-            < detail::same_to<T>::template type
-            , U...
-            >
-        {};
+            > using find = find_if
+                < detail::same<T>::template type
+                , U...
+                >;
 
         template
             < typename    T
             , typename ...U
             > using find_t = typename find<T, U...>::type;
+
+        template
+            < typename    T
+            , typename ...U
+            > bool constexpr static find_v = find<T, U>::value;
 
         template
             < typename T

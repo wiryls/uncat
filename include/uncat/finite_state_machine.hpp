@@ -5,83 +5,58 @@
 namespace uncat { namespace detail
 {
     template
-        < template<typename, typename> class F
-        , template<typename ...      > class T
-        , typename ...V
-        > struct transitions;
-
-    template
-        < template<typename, typename> class F
-        , template<typename ...      > class T
-        , typename S1
-        , typename S2
-        , typename ...I
-        , typename ...V
-        > struct transitions<F, T, T<S1, S2, I...>, V...>
-        : functor_validator<F<S1, I>, S2, S1&, I>::type ...
-        , transitions<F, T, V...>
-    {};
-
-    template
-        < template<typename, typename> class F
-        , template<typename ...      > class T
-        > struct transitions<F, T>
-    {};
-
-    template
-        < template<typename ...> class C
-        , template<typename ...> class T
+        < typename F
         , typename V
-        > struct transitions_parser_base;
+        , typename = void
+        > struct transition_parser {};
 
     template
-        < template<typename ...> class C
+        < typename F
+        , template<typename ...> class V
         , template<typename ...> class T
-        , typename S1
-        , typename S2
+        , typename    S1
+        , typename    S2
         , typename ...I
-        , typename ...V
-        > struct transitions_parser_base<C, T, C<T<S1, S2, I...>, V...>>
+        , typename ...U
+        > struct transition_parser
+        < F
+        , V<T<S1, S2, I...>, U...>
+        , std::void_t
+            < typename functor_pass<F, S2, S1&, I>::type ...
+            , typename transition_parser<F, V<U...>>::states
+            , typename transition_parser<F, V<U...>>::inputs
+            >
+        >
     {
-        using states = typename join
-            < C
-            , C<S1, S2>
-            , typename transitions_parser_base<C, T, C<V...>>::states
-            >::type;
-
-        using triggers = typename join
-            < C
-            , C<I...>
-            , typename transitions_parser_base<C, T, C<V...>>::triggers
-            >::type;
-    };
-
-    template
-        < template<typename ...> class C
-        , template<typename ...> class T
-        > struct transitions_parser_base<C, T, C<>>
-    {
-        using states   = C<>;
-        using triggers = C<>;
-    };
-
-    template
-        < template<typename ...> class C
-        , template<typename ...> class T
-        , typename                 ... V
-        > struct transitions_parser
-    {
+        using functor = F;
+        using matches = typename join
+            < V<V<S1, I>...>
+            , typename transition_parser<F, V<U...>>::matches
+            > ::type;
         using states = typename distinct_stable
-            < C
-            , typename transitions_parser_base<C, T, C<V...>>::states
-            >::type;
-
-        using triggers = typename distinct_stable
-            < C
-            , typename transitions_parser_base<C, T, C<V...>>::triggers
-            >::type;
+            < typename join
+                < V<S1, S2>
+                , typename transition_parser<F, V<U...>>::states
+                > ::type
+            > ::type;
+        using inputs = typename distinct_stable
+            < typename join
+                < V<I ...>
+                , typename transition_parser<F, V<U...>>::inputs
+                > ::type
+            > ::type;
     };
 
+    template
+        < typename F
+        , template<typename ...> class V
+        > struct transition_parser<F, V<>>
+    {
+        using functor = F;
+        using matches = V<>;
+        using  states = V<>;
+        using  inputs = V<>;
+    };
 }}
 
 namespace uncat
@@ -89,53 +64,75 @@ namespace uncat
     template
         < typename S1
         , typename S2
-        , typename ...I
+        , typename ...T
         > struct transition {};
 
     template
-        < template<typename, typename> class F
-        , typename                       ... T
+        < typename    F
+        , typename ...T
         > struct state_machine
-        : types
-        , detail::transitions<F, transition, T...>
+        : private types
+        , private std::void_t<typename detail::transition_parser<F, detail::pack<T...>>::functor>
     {
     private:
-        template<typename ...V> struct list {};
-        using parser = detail::transitions_parser<list, transition, T...>;
+        using parser = detail::transition_parser<F, detail::pack<T...>>;
 
     public:
-        using   states = typename parser::states;
-        using triggers = typename parser::triggers;
-        template<typename U> using trigger_t =   map_t<join_t<list, list<U>, triggers>, find_t>;
-        template<typename U> using    bool_t = first_t<bool, trigger_t<U>>;
+        using states = typename parser::states;
+        using inputs = typename parser::inputs;
+        template<typename I> using input_t = map_t<find_t, join_t<detail::pack<I>, inputs>>;
+        template<typename I> using state_t = map_t<find_t, join_t<detail::pack<I>, states>>;
+        template<typename I> using  bool_t = first_t<bool, input_t<I>>;
 
     public:
-        template<typename U> bool_t<U> accept(U && trigger);
+        template<typename S, typename X, typename = std::void_t<state_t<S>>>
+        state_machine(S && state, X && functor);
+        state_machine();
+
+        state_machine(state_machine const &) = default;
+        state_machine(state_machine      &&) = default;
+        state_machine & operator=(state_machine const &) = default;
+        state_machine & operator=(state_machine      &&) = default;
+
+    public:
+        template<typename I> bool_t<I> accept(I && input);
 
     private:
-        using holder = map_t<states, std::variant>;
-        holder state = map_t<states, first_t>();
+        using holder = map_t<std::variant, states>;
+        holder state;
+        F      shift;
     };
 
-    template<template<typename, typename> class F, typename ...T>
-    template<typename U> inline
-    typename state_machine<F, T...>::template bool_t<U> state_machine<F, T...>::
-    accept(U && trigger)
+    template<typename F, typename ...T>
+    template<typename S, typename X, typename> inline
+    state_machine<F, T...>::
+    state_machine(S && init, X && next)
+        : state(std::forward<S>(init))
+        , shift(std::forward<X>(next))
+    {}
+
+    template<typename F, typename ...T> inline
+    state_machine<F, T...>::
+    state_machine()
+        : state(map_t<first_t, states>())
+        , shift(F())
+    {}
+
+    template<typename F, typename ...T>
+    template<typename I> inline
+    typename state_machine<F, T...>::template bool_t<I> state_machine<F, T...>::
+    accept(I && input)
     {
-        return std::visit([this, &trigger](auto & current) -> bool
+        return std::visit([this, &input](auto & current) -> bool
         {
-            using   state_t = remove_cvr_t<decltype(current)>;
-            using trigger_t = remove_cvr_t<U>;
-            using    this_t = decltype(this);
-            using    that_t = F<state_t, trigger_t>*;
+            using state_t = remove_cvr_t<decltype(current)>;
+            using input_t = remove_cvr_t<I>;
+            using match_t = typename parser::matches;
 
-            auto constexpr  acceptable = std::is_convertible_v<this_t, that_t>;
+            using detail::pack;
+            auto constexpr  acceptable = map_t<find, join_t<pack<pack<state_t, input_t>>, match_t>>::value;
             if   constexpr (acceptable)
-            {
-                auto & next = *static_cast<that_t>(this);
-                this->state = next(current, std::forward<U>(trigger));
-            }
-
+                state = shift(current, std::forward<I>(input));
             return acceptable;
         }, state);
     }

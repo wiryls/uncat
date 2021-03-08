@@ -28,11 +28,7 @@ namespace uncat { namespace detail
             >
         >
     {
-        using functor = F;
-        using matches = typename join
-            < V<V<S1, I>...>
-            , typename transition_parser<F, V<U...>>::matches
-            > ::type;
+        using action = F;
         using states = typename distinct_stable
             < typename join
                 < V<S1, S2>
@@ -45,6 +41,10 @@ namespace uncat { namespace detail
                 , typename transition_parser<F, V<U...>>::inputs
                 > ::type
             > ::type;
+        using matches = typename join
+            < V<V<S1, I>...>
+            , typename transition_parser<F, V<U...>>::matches
+            > ::type;
     };
 
     template
@@ -52,10 +52,10 @@ namespace uncat { namespace detail
         , template<typename ...> class V
         > struct transition_parser<F, V<>>
     {
-        using functor = F;
-        using matches = V<>;
+        using  action = F;
         using  states = V<>;
         using  inputs = V<>;
+        using matches = V<>;
     };
 }}
 
@@ -72,26 +72,26 @@ namespace uncat
         , typename ...T
         > struct state_machine
         : private types
-        , private detail::pack<typename detail::transition_parser<F, detail::pack<T...>>::functor>
-        // if an error happens at functor, it means `F` may not support some state-input pairs.
+        , private detail::pack<typename detail::transition_parser<F, detail::pack<T...>>::action>
+        // if an error happens at action, it means `F` may not support some state-input pairs.
     {
     private:
         using parser = detail::transition_parser<F, detail::pack<T...>>;
-
-    public:
         using states = typename parser::states;
         using inputs = typename parser::inputs;
         template<typename I> using input_t = map_t<find_t, join_t<detail::pack<I>, inputs>>;
         template<typename I> using state_t = map_t<find_t, join_t<detail::pack<I>, states>>;
+
+    public:
         template<typename I> using  bool_t = first_t<bool, input_t<I>>;
 
     public:
         template<typename S, typename X, typename = std::void_t<state_t<S>>>
-        state_machine(S && state, X && functor);
+        state_machine(S && state, X && action);
         state_machine();
 
-        state_machine(state_machine const &) = default;
-        state_machine(state_machine      &&) = default;
+        state_machine            (state_machine const &) = default;
+        state_machine            (state_machine      &&) = default;
         state_machine & operator=(state_machine const &) = default;
         state_machine & operator=(state_machine      &&) = default;
 

@@ -17,16 +17,16 @@ TEST_CASE("find_if", "[types]")
     using uncat::detail::pack;
     using uncat::detail::same;
     using uncat::detail::find_if;
-    REQUIRE(find_if<same<int>::template type, pack<int, void, double>>::value == true );
-    REQUIRE(find_if<same<int>::template type, pack<void, int, double>>::value == true );
-    REQUIRE(find_if<same<int>::template type, pack<char, double, int>>::value == true );
-    REQUIRE(find_if<same<int>::template type, pack<void, void, void >>::value == false);
-    REQUIRE(find_if<same<int>::template type, pack<     void, double>>::value == false);
-    REQUIRE(find_if<same<int>::template type, pack<              int>>::value == true );
-    REQUIRE(find_if<same<int>::template type, pack<                 >>::value == false);
+    REQUIRE(find_if<same<int>::type, pack<int, void, double>>::value == true );
+    REQUIRE(find_if<same<int>::type, pack<void, int, double>>::value == true );
+    REQUIRE(find_if<same<int>::type, pack<char, double, int>>::value == true );
+    REQUIRE(find_if<same<int>::type, pack<void, void, void >>::value == false);
+    REQUIRE(find_if<same<int>::type, pack<     void, double>>::value == false);
+    REQUIRE(find_if<same<int>::type, pack<              int>>::value == true );
+    REQUIRE(find_if<same<int>::type, pack<                 >>::value == false);
 
     {
-        auto lhs = find_if<same<float>::template type, pack<char, int, float, void>>::type();
+        auto lhs = find_if<same<float>::type, pack<char, int, float, void>>::type();
         auto rhs = double();
         REQUIRE(lhs == rhs);
     }
@@ -38,7 +38,7 @@ TEST_CASE("filter", "[types]")
     using uncat::detail::same;
     using uncat::detail::filter;
 
-    REQUIRE(std::is_same_v<filter<same<int>::template type, pack<int, void, int, double>>::type, pack<int, int>>);
+    REQUIRE(std::is_same_v<filter<same<int>::type, pack<int, void, int, double>>::type, pack<int, int>>);
 }
 
 TEST_CASE("is_subset", "[types]")

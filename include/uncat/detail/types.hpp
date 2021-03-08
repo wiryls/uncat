@@ -60,6 +60,15 @@ namespace uncat { namespace detail
             > using type = typename T<V>::type;
     };
 
+    template
+        < template<typename ...> class T
+        > struct non_variadic<T, 2>
+    {
+        template
+            < typename V1, typename V2
+            > using type = typename T<V1, V2>::type;
+    };
+
     /// same_to partially fills a std::is_same with T.
     template
         < typename T
@@ -201,7 +210,7 @@ namespace uncat { namespace detail
 
     /// f -> [...] -> [..]
     template
-        < template<typename> class F // filter functor
+        < template<typename> class F // filter
         , typename T                 // something like T<U...>
         > struct filter
     {};

@@ -36,14 +36,34 @@ namespace uncat { namespace detail
         > struct curry
     {
         template
-            < typename ... V
+            < typename ...V
             > using type = T<U..., V...>;
+    };
+
+    /// make a non variadic template from a variadic template
+    template
+        < template<typename ...> class T
+        , std::size_t                  N = 0
+        > struct non_variadic
+    {
+        template
+            < typename ...U
+            > using type = typename T<U...>::type;
+    };
+
+    template
+        < template<typename ...> class T
+        > struct non_variadic<T, 1>
+    {
+        template
+            < typename V
+            > using type = typename T<V>::type;
     };
 
     /// same_to partially fills a std::is_same with T.
     template
         < typename T
-        > using same = curry<std::is_same, T>;
+        > using same = non_variadic<curry<std::is_same, T>::template type, 1>;
 
     /// make sure the functor F could be invoked like F()(T()...) -> R
     template
@@ -370,7 +390,7 @@ namespace uncat
         template
             < typename    T
             , typename ...U
-            > bool constexpr static find_v = find<T, U>::value;
+            > bool constexpr static find_v = find<T, U...>::value;
 
         template
             < typename T

@@ -18,6 +18,7 @@ TEST_CASE("notify with push back", "[messenger]")
         for (auto i = 0; i < 10000; ++i)
             m.send(i);
 
-        return m.remove_handler<int, true>("collector");
+        m.remove_handler<int>("collector").wait();
+        return true;
     };
 }

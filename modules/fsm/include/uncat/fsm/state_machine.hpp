@@ -1,8 +1,8 @@
 #pragma once
 #include <variant>
-#include <uncat/detail/types.hpp>
+#include <uncat/types/types.hpp>
 
-namespace uncat { namespace detail
+namespace uncat { namespace fsm
 {
     template
         < typename F
@@ -22,26 +22,26 @@ namespace uncat { namespace detail
         < F
         , V<T<S1, S2, I...>, U...>
         , std::void_t
-            < typename functor_pass<F, S2, S1&, I>::type ...
+            < typename types::functor_pass<F, S2, S1&, I>::type ...
             , typename transition_parser<F, V<U...>>::states
             , typename transition_parser<F, V<U...>>::inputs
             >
         >
     {
         using action = F;
-        using states = typename distinct_stable
-            < typename join
+        using states = typename types::distinct_stable
+            < typename types::join
                 < V<S1, S2>
                 , typename transition_parser<F, V<U...>>::states
                 > ::type
             > ::type;
-        using inputs = typename distinct_stable
-            < typename join
+        using inputs = typename types::distinct_stable
+            < typename types::join
                 < V<I ...>
                 , typename transition_parser<F, V<U...>>::inputs
                 > ::type
             > ::type;
-        using matches = typename join
+        using matches = typename types::join
             < V<V<S1, I>...>
             , typename transition_parser<F, V<U...>>::matches
             > ::type;
@@ -71,16 +71,15 @@ namespace uncat
         < typename    F
         , typename ...T
         > struct state_machine
-        : private types
-        , private detail::pack<typename detail::transition_parser<F, detail::pack<T...>>::action>
+        : private types::pack<typename fsm::transition_parser<F, types::pack<T...>>::action>
         // if an error happens at action, it means `F` may not support some state-input pairs.
     {
     private:
-        using parser = detail::transition_parser<F, detail::pack<T...>>;
+        using parser = fsm::transition_parser<F, types::pack<T...>>;
         using states = typename parser::states;
         using inputs = typename parser::inputs;
-        template<typename I> using input_t = map_t<find_t, join_t<detail::pack<I>, inputs>>;
-        template<typename I> using state_t = map_t<find_t, join_t<detail::pack<I>, states>>;
+        template<typename I> using input_t = map_t<find_t, join_t<types::pack<I>, inputs>>;
+        template<typename I> using state_t = map_t<find_t, join_t<types::pack<I>, states>>;
 
     public:
         template<typename I> using  bool_t = first_t<bool, input_t<I>>;
@@ -130,7 +129,7 @@ namespace uncat
             using input_t = remove_cvr_t<I>;
             using match_t = typename parser::matches;
 
-            using detail::pack;
+            using types::pack;
             auto constexpr  acceptable = map_t<find, join_t<pack<pack<state_t, input_t>>, match_t>>::value;
             if   constexpr (acceptable)
                 state = shift(current, std::forward<I>(input));

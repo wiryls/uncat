@@ -3,6 +3,9 @@
 
 # CMake Project
 /build
+/out
 
 # IDE
+/.vs
 /.vscode
+/CMakeSettings.json

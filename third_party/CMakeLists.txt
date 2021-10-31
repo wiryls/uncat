@@ -4,13 +4,11 @@ cmake_minimum_required(VERSION 3.14)
 include(FetchContent)
 set(FETCHCONTENT_QUIET OFF)
 
-# third party libraries
-#
-
 # helper
 # this part is used to collect all third party targets
 # https://stackoverflow.com/a/25785856
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    set(collect_third_party ON)
     set(third_party_targets "" CACHE INTERNAL "third party target list")
     function(add_library name)
         _add_library(${name} ${ARGN})
@@ -25,7 +23,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         remember_target(${name})
     endfunction()
     function(remember_target name)
-        if(TARGET ${name} AND NOT ${name} IN_LIST third_party_targets)
+        if(collect_third_party AND TARGET ${name} AND NOT ${name} IN_LIST third_party_targets)
             # see: https://cmake.org/cmake/help/latest/command/get_target_property.html
             get_target_property(_aliased  ${name} ALIASED_TARGET)
             get_target_property(_imported ${name} IMPORTED)
@@ -37,10 +35,15 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     endfunction()
 endif()
 
+# third party libraries
+#
+
+
 # populate
 FetchContent_MakeAvailable()
 
 # ide friendly
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set_target_properties(${third_party_targets} PROPERTIES FOLDER "third_party")
+    set(collect_third_party OFF)
 endif()

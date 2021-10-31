@@ -8,15 +8,15 @@
 #include <future>
 #include <mutex>
 #include <condition_variable>
-#include <uncat/parallel_world.hpp>
-#include <uncat/detail/types.hpp>
+#include <uncat/exec/executor.hpp>
+#include <uncat/types/types.hpp>
 
 namespace uncat
 {
     template
         < typename    K  // key    type, used as key in hash table
         , typename ...T  // events type, must be copyable and movable
-        > class messenger : private types
+        > class messenger
     {
     public:
         using name_t = K;
@@ -40,7 +40,7 @@ namespace uncat
 
     private:
         std::tuple<group_t<T>...> gorups; /// handlers is only used in one thread.
-        world_line                todo;
+        exec::executor            todo{1};
     };
 
     template<typename K, typename ...T>
@@ -48,7 +48,7 @@ namespace uncat
     typename messenger<K, T...>::template this_t<U> & messenger<K, T...>::
     add_handler(name_t name, handler_t<U> func)
     {
-        todo.cross([this, name = std::move(name), func = std::move(func)]
+        todo([this, name = std::move(name), func = std::move(func)]
         {
             add_handler_unsafe<U>(std::move(name), std::move(func));
         });
@@ -60,7 +60,7 @@ namespace uncat
     typename messenger<K, T...>::template this_t<U> & messenger<K, T...>::
     remove_handler(name_t name)
     {
-        todo.cross([this, name = std::move(name)]
+        todo([this, name = std::move(name)]
         {
             remove_handler_unsafe<U>(std::move(name));
         });
@@ -72,7 +72,7 @@ namespace uncat
     typename messenger<K, T...>::template this_t<U> & messenger<K, T...>::
     send(U && event)
     {
-        todo.cross([this, event = std::move(event)]
+        todo([this, event = std::move(event)]
         {
             send_unsafe<remove_cvr_t<U>>(event);
         });
@@ -85,7 +85,7 @@ namespace uncat
     {
         auto sign = std::make_shared<std::promise<void>>();
         auto wait = sign->get_future();
-        auto done = todo.cross([sign = std::move(sign)]
+        auto done = todo([sign = std::move(sign)]
         {
             sign->set_value();
         });

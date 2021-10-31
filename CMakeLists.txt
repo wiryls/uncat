@@ -1,5 +1,5 @@
 # cmake requirement
-cmake_minimum_required(VERSION 3.19...3.20)
+cmake_minimum_required(VERSION 3.19)
 
 # project infomation
 project(uncat
@@ -18,7 +18,7 @@ set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "")
 
 # add their and our libraries
 add_subdirectory(third_party)
-add_subdirectory(src)
+add_subdirectory(modules)
 
 # add executable
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND UNCAT_BUILD_EXAMPLES)

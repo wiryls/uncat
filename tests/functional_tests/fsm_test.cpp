@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include <uncat/finite_state_machine.hpp>
+#include <uncat/fsm/state_machine.hpp>
 
 struct   locked_state {};
 struct unlocked_state {};
@@ -31,7 +31,7 @@ struct coin_operated_turnstile
     }
 };
 
-TEST_CASE("coin operated turnstile", "[finite_state_machine_test]")
+TEST_CASE("coin operated turnstile", "[fsm]")
 {
     using uncat::state_machine;
     using uncat::transition;

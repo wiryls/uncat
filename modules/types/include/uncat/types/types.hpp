@@ -1,7 +1,7 @@
 #pragma once
 #include <type_traits>
 
-namespace uncat { namespace detail
+namespace uncat { namespace types
 {
     /////////////////////////////////////////////////////////////////////////
     // limited types -> type / value
@@ -82,7 +82,7 @@ namespace uncat { namespace detail
     /// 
 }}
 
-namespace uncat { namespace detail
+namespace uncat { namespace types
 {
     /////////////////////////////////////////////////////////////////////////
     // types -> type
@@ -132,10 +132,8 @@ namespace uncat { namespace detail
     template
         < typename     T
         , typename ... V
-        > struct exists
-    {
-        bool constexpr static value = (std::is_same_v<T, V> || ...);
-    };
+        > struct exists : std::bool_constant<(std::is_same_v<T, V> || ...)>
+    {};
 
     /// (a -> bool) -> a... -> bool
     template
@@ -148,7 +146,7 @@ namespace uncat { namespace detail
 
 }}
 
-namespace uncat { namespace detail
+namespace uncat { namespace types
 {
     /////////////////////////////////////////////////////////////////////////
     // types -> types
@@ -271,7 +269,6 @@ namespace uncat { namespace detail
     template
         < typename L
         , typename R
-        , typename = void
         > struct is_subset
     {
         bool constexpr static value = false;
@@ -284,10 +281,9 @@ namespace uncat { namespace detail
         > struct is_subset
             < C<L...>
             , C<R...>
-            , std::enable_if_t<(exists<L, R...>::value && ...)>
             >
     {
-        bool constexpr static value = true;
+        bool constexpr static value = (exists<L, R...>::value && ...);
     };
 
     /// distinct
@@ -344,51 +340,48 @@ namespace uncat
     /////////////////////////////////////////////////////////////////////////
     // export
 
-    struct types
-    {
-        template
-            < template<typename ...> class M
-            , typename                     T
-            > using map_t = typename detail::map<M, T>::type;
+    template
+        < template<typename ...> class M
+        , typename                     T
+        > using map_t = typename types::map<M, T>::type;
 
-        template
-            < typename L
-            , typename R
-            > using join_t = typename detail::join<L, R>::type;
+    template
+        < typename L
+        , typename R
+        > using join_t = typename types::join<L, R>::type;
 
-        template
-            < typename ... T
-            > using last_t = typename detail::last<T...>::type;
+    template
+        < typename ... T
+        > using last_t = typename types::last<T...>::type;
 
-        template
-            < typename ... T
-            > using first_t = typename detail::first<T...>::type;
+    template
+        < typename ... T
+        > using first_t = typename types::first<T...>::type;
 
-        template
-            < template<typename> class F
-            , typename             ... T
-            > using find_if = detail::find_if<F, detail::pack<T...>>;
+    template
+        < template<typename> class F
+        , typename             ... T
+        > using find_if = types::find_if<F, types::pack<T...>>;
 
-        template
-            < typename     T
-            , typename ... U
-            > using find = find_if
-                < detail::same<T>::template type
-                , U...
-                >;
+    template
+        < typename     T
+        , typename ... U
+        > using find = find_if
+            < types::same<T>::template type
+            , U...
+            >;
 
-        template
-            < typename     T
-            , typename ... U
-            > using find_t = typename find<T, U...>::type;
+    template
+        < typename     T
+        , typename ... U
+        > using find_t = typename find<T, U...>::type;
 
-        template
-            < typename     T
-            , typename ... U
-            > bool constexpr static find_v = find<T, U...>::value;
+    template
+        < typename     T
+        , typename ... U
+        > bool constexpr static find_v = find<T, U...>::value;
 
-        template
-            < typename T
-            > using remove_cvr_t = detail::remove_cvr_t<T>;
-    };
+    template
+        < typename T
+        > using remove_cvr_t = types::remove_cvr_t<T>;
 }

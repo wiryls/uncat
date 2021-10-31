@@ -5,16 +5,23 @@ string(TOLOWER ${name} name)
 
 # source lists
 set(sources
-    finite_state_machine_test.cpp
+    exec_test.cpp
+    far_test.cpp
+    fsm_test.cpp
     messenger_test.cpp
-    parallel_world_test.cpp
     types_test.cpp)
 
 # executable
 add_executable       (${name} ${sources})
 set_target_properties(${name} PROPERTIES FOLDER "${PROJECT_NAME}/tests")
-set_target_properties(${name} PROPERTIES CXX_STANDARD 17)
-target_link_libraries(${name} PRIVATE Catch2::Catch2WithMain uncat)
+set_target_properties(${name} PROPERTIES CXX_STANDARD 23)
+target_link_libraries(${name} PRIVATE
+    Catch2::Catch2WithMain
+    uncat::exec
+    uncat::far
+    uncat::fsm
+    uncat::messenger
+    uncat::types)
 
 # add for CTest
 add_test(NAME ${name} COMMAND ${name})

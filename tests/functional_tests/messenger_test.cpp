@@ -1,7 +1,7 @@
 #include <vector>
 #include <string>
 #include <catch2/catch_test_macros.hpp>
-#include <uncat/messenger.hpp>
+#include <uncat/messenger/messenger.hpp>
 
 TEST_CASE("lambda handlers", "[messenger]")
 {

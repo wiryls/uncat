@@ -1,22 +1,21 @@
 #include <catch2/catch_test_macros.hpp>
-#include <uncat/detail/types.hpp>
+#include <uncat/types/types.hpp>
 
 TEST_CASE("reverse", "[types]")
 {
-    using uncat::detail::pack;
-    using uncat::detail::reverse;
+    using uncat::types::pack;
+    using uncat::types::reverse;
 
     REQUIRE(std::is_same_v<typename reverse<pack<void, int, double>>::type, pack<double, int, void>>);
     REQUIRE(std::is_same_v<typename reverse<pack<void, void, void>>::type, pack<void, void, void>>);
     REQUIRE(std::is_same_v<typename reverse<pack<>>::type, pack<>>);
 }
 
-
 TEST_CASE("find_if", "[types]")
 {
-    using uncat::detail::pack;
-    using uncat::detail::same;
-    using uncat::detail::find_if;
+    using uncat::types::pack;
+    using uncat::types::same;
+    using uncat::types::find_if;
     REQUIRE(find_if<same<int>::type, pack<int, void, double>>::value == true );
     REQUIRE(find_if<same<int>::type, pack<void, int, double>>::value == true );
     REQUIRE(find_if<same<int>::type, pack<char, double, int>>::value == true );
@@ -34,17 +33,17 @@ TEST_CASE("find_if", "[types]")
 
 TEST_CASE("filter", "[types]")
 {
-    using uncat::detail::pack;
-    using uncat::detail::same;
-    using uncat::detail::filter;
+    using uncat::types::pack;
+    using uncat::types::same;
+    using uncat::types::filter;
 
     REQUIRE(std::is_same_v<filter<same<int>::type, pack<int, void, int, double>>::type, pack<int, int>>);
 }
 
 TEST_CASE("is_subset", "[types]")
 {
-    using uncat::detail::pack;
-    using uncat::detail::is_subset;
+    using uncat::types::pack;
+    using uncat::types::is_subset;
     REQUIRE(is_subset<pack<double, void, int>, pack<int, void, double>>::value == true );
     REQUIRE(is_subset<pack<int, void, double>, pack<int, void, double>>::value == true );
     REQUIRE(is_subset<pack<int, void        >, pack<int, void, double>>::value == true );
@@ -57,9 +56,9 @@ TEST_CASE("is_subset", "[types]")
 
 TEST_CASE("distinct", "[types]")
 {
-    using uncat::detail::pack;
-    using uncat::detail::distinct;
-    using uncat::detail::distinct_stable;
+    using uncat::types::pack;
+    using uncat::types::distinct;
+    using uncat::types::distinct_stable;
 
     REQUIRE(std::is_same_v<typename distinct<pack<int, int, double>>::type, pack<int, double>>);
     REQUIRE(std::is_same_v<typename distinct<pack<int, double, int>>::type, pack<double, int>>);

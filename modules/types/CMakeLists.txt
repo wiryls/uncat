@@ -14,7 +14,7 @@ add_library("${PROJECT_NAME}::${name}" ALIAS ${name})
 # target options
 source_group              (TREE "${CMAKE_CURRENT_SOURCE_DIR}/include" PREFIX "Header Files" FILES ${headers})
 set_target_properties     (${name} PROPERTIES FOLDER "${PROJECT_NAME}/modules")
-set_target_properties     (${name} PROPERTIES CXX_STANDARD 17)
+set_target_properties     (${name} PROPERTIES CXX_STANDARD 23)
 target_include_directories(${name} INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_compile_options    (${name} INTERFACE
     "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-pedantic-errors;-Wall;-Wextra;-Wconversion;-Werror>"

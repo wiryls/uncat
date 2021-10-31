@@ -1,72 +1,96 @@
 #include <catch2/catch_test_macros.hpp>
+#include <concepts>
 #include <uncat/types/types.hpp>
+
+TEST_CASE("exists, any", "[types]")
+{
+    using uncat::types::curry
+        , uncat::types::append
+        , uncat::types::same
+        , uncat::types::exists
+        , uncat::types::exists_v
+        , uncat::types::any_v;
+
+    static_assert(!exists_v<int, float, float, float>);
+    static_assert( exists_v<int, float, int, double>);
+    static_assert( exists_v<int, float, int>);
+
+    static_assert(!any_v<same<int>::type>);
+    static_assert(!any_v<same<int>::type, float>);
+    static_assert( any_v<same<int>::type, float, int>);
+    static_assert( any_v<append<exists, float, int, double>::type, float>);
+}
 
 TEST_CASE("reverse", "[types]")
 {
-    using uncat::types::pack;
-    using uncat::types::reverse;
+    using uncat::types::pack
+        , uncat::types::reverse
+        , uncat::types::reverse_t;
 
-    REQUIRE(std::is_same_v<typename reverse<pack<void, int, double>>::type, pack<double, int, void>>);
-    REQUIRE(std::is_same_v<typename reverse<pack<void, void, void>>::type, pack<void, void, void>>);
-    REQUIRE(std::is_same_v<typename reverse<pack<>>::type, pack<>>);
+    static_assert(std::same_as<reverse_t<pack<void, int, double>>, pack<double, int, void>>);
+    static_assert(std::same_as<reverse_t<pack<void, void, void>>, pack<void, void, void>>);
+    static_assert(std::same_as<reverse_t<pack<>>, pack<>>);
+}
+
+TEST_CASE("filter", "[types]")
+{
+    using uncat::types::pack
+        , uncat::types::same
+        , uncat::types::filter_t;
+
+    static_assert(std::same_as<filter_t<same<int>::type, pack<int, void, int, double>>, pack<int, int>>);
 }
 
 TEST_CASE("find_if", "[types]")
 {
-    using uncat::types::pack;
-    using uncat::types::same;
-    using uncat::types::find_if;
-    REQUIRE(find_if<same<int>::type, pack<int, void, double>>::value == true );
-    REQUIRE(find_if<same<int>::type, pack<void, int, double>>::value == true );
-    REQUIRE(find_if<same<int>::type, pack<char, double, int>>::value == true );
-    REQUIRE(find_if<same<int>::type, pack<void, void, void >>::value == false);
-    REQUIRE(find_if<same<int>::type, pack<     void, double>>::value == false);
-    REQUIRE(find_if<same<int>::type, pack<              int>>::value == true );
-    REQUIRE(find_if<same<int>::type, pack<                 >>::value == false);
+    using uncat::types::pack
+        , uncat::types::same
+        , uncat::types::search
+        , uncat::types::find_v;
+
+    static_assert( find_v<int, int, void, double>);
+    static_assert( find_v<int, void, int, double>);
+    static_assert( find_v<int, char, double, int>);
+    static_assert(!find_v<int, void, void, void >);
+    static_assert(!find_v<int,      void, double>);
+    static_assert( find_v<int,               int>);
+    static_assert(!find_v<int                   >);
 
     {
-        auto lhs = find_if<same<float>::type, pack<char, int, float, void>>::type();
+        auto lhs = search<same<float>::type, pack<char, int, float, void>>::type();
         auto rhs = double();
         REQUIRE(lhs == rhs);
     }
 }
 
-TEST_CASE("filter", "[types]")
-{
-    using uncat::types::pack;
-    using uncat::types::same;
-    using uncat::types::filter;
-
-    REQUIRE(std::is_same_v<filter<same<int>::type, pack<int, void, int, double>>::type, pack<int, int>>);
-}
-
 TEST_CASE("is_subset", "[types]")
 {
-    using uncat::types::pack;
-    using uncat::types::is_subset;
-    REQUIRE(is_subset<pack<double, void, int>, pack<int, void, double>>::value == true );
-    REQUIRE(is_subset<pack<int, void, double>, pack<int, void, double>>::value == true );
-    REQUIRE(is_subset<pack<int, void        >, pack<int, void, double>>::value == true );
-    REQUIRE(is_subset<pack<int, void, float >, pack<int, void, double>>::value == false);
-    REQUIRE(is_subset<pack<int, void, float >, pack<                 >>::value == false);
-    REQUIRE(is_subset<pack<     void        >, pack<int, void, double>>::value == true );
-    REQUIRE(is_subset<pack<                 >, pack<int, void, double>>::value == true );
-    REQUIRE(is_subset<pack<                 >, pack<                 >>::value == true );
+    using uncat::types::pack
+        , uncat::types::is_subset_v;
+
+    static_assert( is_subset_v<pack<double, void, int>, pack<int, void, double>>);
+    static_assert( is_subset_v<pack<int, void, double>, pack<int, void, double>>);
+    static_assert( is_subset_v<pack<int, void        >, pack<int, void, double>>);
+    static_assert(!is_subset_v<pack<int, void, float >, pack<int, void, double>>);
+    static_assert(!is_subset_v<pack<int, void, float >, pack<                 >>);
+    static_assert( is_subset_v<pack<     void        >, pack<int, void, double>>);
+    static_assert( is_subset_v<pack<                 >, pack<int, void, double>>);
+    static_assert( is_subset_v<pack<                 >, pack<                 >>);
 }
 
 TEST_CASE("distinct", "[types]")
 {
-    using uncat::types::pack;
-    using uncat::types::distinct;
-    using uncat::types::distinct_stable;
+    using uncat::types::pack
+        , uncat::types::distinct_t
+        , uncat::types::distinct_stable_t;
 
-    REQUIRE(std::is_same_v<typename distinct<pack<int, int, double>>::type, pack<int, double>>);
-    REQUIRE(std::is_same_v<typename distinct<pack<int, double, int>>::type, pack<double, int>>);
-    REQUIRE(std::is_same_v<typename distinct<pack<int, int, int, int>>::type, pack<int>>);
-    REQUIRE(std::is_same_v<typename distinct<pack<int, double, double, int>>::type, pack<double, int>>);
+    static_assert(std::same_as<distinct_t<pack<int,    int, double     >>, pack<   int, double>>);
+    static_assert(std::same_as<distinct_t<pack<int, double,    int     >>, pack<double, int   >>);
+    static_assert(std::same_as<distinct_t<pack<int,    int,    int, int>>, pack<   int        >>);
+    static_assert(std::same_as<distinct_t<pack<int, double, double, int>>, pack<double, int   >>);
 
-    REQUIRE(std::is_same_v<typename distinct_stable<pack<int, int, double>>::type, pack<int, double>>);
-    REQUIRE(std::is_same_v<typename distinct_stable<pack<int, double, int>>::type, pack<int, double>>);
-    REQUIRE(std::is_same_v<typename distinct_stable<pack<int, int, int, int>>::type, pack<int>>);
-    REQUIRE(std::is_same_v<typename distinct_stable<pack<int, double, double, int>>::type, pack<int, double>>);
+    static_assert(std::same_as<distinct_stable_t<pack<int,    int, double     >>, pack<int, double>>);
+    static_assert(std::same_as<distinct_stable_t<pack<int, double,    int     >>, pack<int, double>>);
+    static_assert(std::same_as<distinct_stable_t<pack<int,    int,    int, int>>, pack<int        >>);
+    static_assert(std::same_as<distinct_stable_t<pack<int, double, double, int>>, pack<int, double>>);
 }

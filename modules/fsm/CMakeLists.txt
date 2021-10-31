@@ -16,7 +16,7 @@ source_group              (TREE "${CMAKE_CURRENT_SOURCE_DIR}/include" PREFIX "He
 set_target_properties     (${name} PROPERTIES FOLDER "${PROJECT_NAME}/modules")
 set_target_properties     (${name} PROPERTIES CXX_STANDARD 23)
 target_include_directories(${name} INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_link_libraries     (${name} INTERFACE types)
+target_link_libraries     (${name} INTERFACE uncat::types)
 target_compile_options    (${name} INTERFACE
     "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-pedantic-errors;-Wall;-Wextra;-Wconversion;-Werror>"
     "$<$<AND:$<CONFIG:RELEASE>,$<NOT:$<CXX_COMPILER_ID:MSVC>>>:-O3>"

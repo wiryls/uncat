@@ -6,6 +6,59 @@ namespace uncat { namespace fsm
 {
     template
         < typename F
+        , typename T >
+    struct validator
+        : std::false_type
+    {};
+
+    template
+        < typename                     F
+        , template<typename ...> class T
+        , typename                     S
+        , typename                     D
+        , typename                 ... I >
+    struct validator
+        < F
+        , T<S, D, I ...> >
+        : std::bool_constant<(std::is_invocable_r_v<D, F, std::add_lvalue_reference_t<S>, I> && ...)>
+    {};
+
+    template
+        < template<typename ...> class O
+        , typename     M
+        , typename ... T
+        > struct parser
+    {
+        using  action = M;
+        using  states = O<>;
+        using  inputs = O<>;
+        using matches = O<>;
+    };
+
+    template
+        < template<typename ...> class O
+        , typename                     M
+        , template<typename ...> class T
+        , typename                     S
+        , typename                     D
+        , typename                 ... I
+        , typename                 ... U >
+    requires validator<M, T<S, D, I...>>::value && (validator<M, U>::value && ...)
+    struct parser
+        < O
+        , M
+        , T<S, D, I...>
+        , U ...
+        >
+    {
+        using  action = M;
+        using  states = O<>;
+        using  inputs = O<>;
+        using matches = O<>;
+    };
+
+    template
+        < typename F
         , typename V
         , typename = void
         > struct transition_parser {};
@@ -29,22 +82,22 @@ namespace uncat { namespace fsm
         >
     {
         using action = F;
-        using states = typename types::distinct_stable
+        using states = typename types::distinct_stable_t
             < typename types::join
                 < V<S1, S2>
                 , typename transition_parser<F, V<U...>>::states
                 > ::type
-            > ::type;
-        using inputs = typename types::distinct_stable
+            >;
+        using inputs = typename types::distinct_stable_t
             < typename types::join
                 < V<I ...>
                 , typename transition_parser<F, V<U...>>::inputs
                 > ::type
-            > ::type;
-        using matches = typename types::join
+            >;
+        using matches = types::join_t
             < V<V<S1, I>...>
             , typename transition_parser<F, V<U...>>::matches
-            > ::type;
+            >;
     };
 
     template
@@ -78,11 +131,11 @@ namespace uncat
         using parser = fsm::transition_parser<F, types::pack<T...>>;
         using states = typename parser::states;
         using inputs = typename parser::inputs;
-        template<typename I> using input_t = map_t<find_t, join_t<types::pack<I>, inputs>>;
-        template<typename I> using state_t = map_t<find_t, join_t<types::pack<I>, states>>;
+        template<typename I> using input_t = types::map_t<types::find_t, types::join_t<types::pack<I>, inputs>>;
+        template<typename I> using state_t = types::map_t<types::find_t, types::join_t<types::pack<I>, states>>;
 
     public:
-        template<typename I> using  bool_t = first_t<bool, input_t<I>>;
+        template<typename I> using  bool_t = types::first_t<bool, input_t<I>>;
 
     public:
         template<typename S, typename X, typename = std::void_t<state_t<S>>>
@@ -98,7 +151,7 @@ namespace uncat
         template<typename I> bool_t<I> accept(I && input);
 
     private:
-        using holder = map_t<std::variant, states>;
+        using holder = types::map_t<std::variant, states>;
         holder state;
         F      shift;
     };
@@ -114,7 +167,7 @@ namespace uncat
     template<typename F, typename ...T> inline
     state_machine<F, T...>::
     state_machine()
-        : state(map_t<first_t, states>())
+        : state(types::map_t<types::first_t, states>())
         , shift(F())
     {}
 
@@ -125,12 +178,12 @@ namespace uncat
     {
         return std::visit([this, &input](auto & current) -> bool
         {
-            using state_t = remove_cvr_t<decltype(current)>;
-            using input_t = remove_cvr_t<I>;
+            using state_t = std::remove_cvref_t<decltype(current)>;
+            using input_t = std::remove_cvref_t<I>;
             using match_t = typename parser::matches;
 
             using types::pack;
-            auto constexpr  acceptable = map_t<find, join_t<pack<pack<state_t, input_t>>, match_t>>::value;
+            auto constexpr  acceptable = types::map_t<types::find, types::join_t<pack<pack<state_t, input_t>>, match_t>>::value;
             if   constexpr (acceptable)
                 state = shift(current, std::forward<I>(input));
             return acceptable;

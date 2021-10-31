@@ -22,8 +22,8 @@ namespace uncat
         using name_t = K;
         template<typename E> using handler_t = std::function<void(E const&)>;
         template<typename E> using   group_t = std::unordered_map<name_t, handler_t<E>>;
-        template<typename E> using   event_t =  find_t<remove_cvr_t<E>, T...>;
-        template<typename E> using    this_t = first_t<messenger, event_t<E>>;
+        template<typename E> using   event_t = types::find_t <std::remove_cvref_t<E>, T...>;
+        template<typename E> using    this_t = types::first_t<messenger, event_t<E>>;
 
     public:
         template<typename E> this_t<E> &    add_handler(name_t name, handler_t<E> handler);
@@ -74,7 +74,7 @@ namespace uncat
     {
         todo([this, event = std::move(event)]
         {
-            send_unsafe<remove_cvr_t<U>>(event);
+            send_unsafe<std::remove_cvref_t<U>>(event);
         });
         return *this;
     }

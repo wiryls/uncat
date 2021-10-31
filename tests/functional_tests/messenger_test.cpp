@@ -8,6 +8,8 @@ TEST_CASE("lambda handlers", "[messenger]")
     using uncat::messenger;
     auto m = messenger<std::string, std::size_t, float, std::string>();
 
+    static_assert(uncat::types::oneof<std::size_t, std::size_t, float, std::string>);
+
     SECTION("primitives")
     {
         auto n = std::size_t(10);
@@ -15,7 +17,7 @@ TEST_CASE("lambda handlers", "[messenger]")
         m.add_handler<std::size_t>("collector", [&](std::size_t i) { v.push_back(i); });
 
         for (auto i = std::size_t(); i < n; ++i)
-            m.send(i);
+            m.send(std::move(i));
 
         m.remove_handler<std::size_t>("collector").wait();
 

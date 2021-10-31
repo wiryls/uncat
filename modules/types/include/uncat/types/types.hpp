@@ -53,29 +53,6 @@ namespace uncat { namespace types
             , typename B >
         using type = typename T<A, B>::type;
     };
-
-    /// make sure the functor F could be invoked like F()(T()...) -> R
-    template
-        < typename     F
-        , typename     R
-        , typename ... T
-        > struct functor_pass
-    {
-        bool constexpr static value = false;
-    };
-
-    template
-        < typename     F
-        , typename ... T
-        > struct functor_pass
-            < F
-            , decltype(std::declval<F>()(std::declval<T>()...))
-            , T...
-            >
-    {
-        using type = F;
-        bool constexpr static value = true;
-    };
 }}
 
 namespace uncat { namespace types
@@ -143,7 +120,7 @@ namespace uncat { namespace types
     requires requires { typename map<M, C>::type; }
     using map_t = typename map<M, C>::type;
 
-    /// (a -> bool) -> a... -> bool
+    /// a -> ... a ... -> bool
     template
         < typename     T
         , typename ... U >
@@ -168,6 +145,44 @@ namespace uncat { namespace types
         < template<typename> class P
         , typename             ... T >
     auto inline constexpr any_v = any<P, T...>::value;
+
+    /// (a -> bool) -> a... -> a
+    template
+        < template<typename> class P   // unary predicate
+        , typename             ... T > // type list
+    struct find;
+
+    template
+        < template<typename   > class P
+        , typename                    H
+        , typename                ... T >
+    requires (P<H>::value == false && any_v<P, T...>)
+    struct find
+        < P
+        , H
+        , T... >
+    {
+        using type = typename find<P, T...>::type;
+    };
+
+    template
+        < template<typename   > class P
+        , typename                    H
+        , typename                ... T >
+    requires (P<H>::value)
+    struct find
+        < P
+        , H
+        , T... >
+    {
+        using type = H;
+    };
+
+    template
+        < template<typename> class P   // unary predicate
+        , typename             ... T > // type list
+    requires requires { typename find<P, T...>::type; }
+    using find_t = typename find<P, T...>::type;
 }}
 
 namespace uncat { namespace types
@@ -226,6 +241,23 @@ namespace uncat { namespace types
     requires requires { typename reverse<C>::type; }
     using reverse_t = typename reverse<C>::type;
 
+    /// a -> [...] -> bool
+    template
+        < typename T
+        , typename C >
+    struct is_in : std::false_type {};
+
+    template
+        < typename                     T
+        , template<typename ...> class C
+        , typename                 ... U >
+    struct is_in<T, C<U...>> : types::exists<T, U...> {};
+
+    template
+        < typename T
+        , typename C >
+    auto inline constexpr is_in_v = is_in<T, C>::value;
+
     /// f -> [...] -> [..]
     template
         < template<typename> class P   // unary predicate
@@ -260,65 +292,6 @@ namespace uncat { namespace types
         , typename                 C >
     using filter_t = typename filter<P, C>::type;
 
-    /// (a -> bool) -> [a...] -> type / bool
-    template
-        < template<typename> class P   // unary predicate
-        , typename                 C > // something like C<U...>
-    struct search
-    {
-        bool constexpr static value = false;
-    };
-
-    template
-        < template<typename   > class P
-        , template<typename...> class C
-        , typename                    H
-        , typename                ... T >
-    requires (P<H>::value == false && any_v<P, T...>)
-    struct search
-        < P
-        , C<H, T...> >
-    {
-        bool constexpr static value = true;
-        using type = typename search<P, C<T...>>::type;
-    };
-
-    template
-        < template<typename   > class P
-        , template<typename...> class C
-        , typename                    H
-        , typename                ... T >
-    requires (P<H>::value)
-    struct search
-        < P
-        , C<H, T...> >
-    {
-        bool constexpr static value = true;
-        using type = H;
-    };
-
-    template
-        < template<typename> class P
-        , typename             ... T >
-    using find_if = search<P, pack<T...>>;
-
-    template
-        < typename     T
-        , typename ... U >
-    using find = find_if
-        < same<T>::template type
-        , U... >;
-
-    template
-        < typename     T
-        , typename ... U >
-    using find_t = typename find<T, U...>::type;
-
-    template
-        < typename     T
-        , typename ... U >
-    bool constexpr static find_v = find<T, U...>::value;
-
     /// check if L is a subset of R.
     template
         < typename L
@@ -338,7 +311,7 @@ namespace uncat { namespace types
         < typename L
         , typename R >
     requires requires { is_subset<L, R>::value; }
-    auto static constexpr is_subset_v = is_subset<L, R>::value;
+    auto inline constexpr is_subset_v = is_subset<L, R>::value;
 
     /// distinct
     template < typename C >

@@ -41,26 +41,16 @@ TEST_CASE("filter", "[types]")
     static_assert(std::same_as<filter_t<same<int>::type, pack<int, void, int, double>>, pack<int, int>>);
 }
 
-TEST_CASE("find_if", "[types]")
+TEST_CASE("find", "[types]")
 {
     using uncat::types::pack
         , uncat::types::same
-        , uncat::types::search
-        , uncat::types::find_v;
+        , uncat::types::find_t;
 
-    static_assert( find_v<int, int, void, double>);
-    static_assert( find_v<int, void, int, double>);
-    static_assert( find_v<int, char, double, int>);
-    static_assert(!find_v<int, void, void, void >);
-    static_assert(!find_v<int,      void, double>);
-    static_assert( find_v<int,               int>);
-    static_assert(!find_v<int                   >);
-
-    {
-        auto lhs = search<same<float>::type, pack<char, int, float, void>>::type();
-        auto rhs = double();
-        REQUIRE(lhs == rhs);
-    }
+    static_assert(sizeof find_t<same<int>::type, int, void, double>);
+    static_assert(sizeof find_t<same<int>::type, void, int, double>);
+    static_assert(sizeof find_t<same<int>::type, char, double, int>);
+    static_assert(sizeof find_t<same<int>::type,               int>);
 }
 
 TEST_CASE("is_subset", "[types]")

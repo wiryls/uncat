@@ -5,6 +5,7 @@ string(TOLOWER ${name} name)
 
 # collect all header files
 set(headers
+    include/uncat/types/concepts.hpp
     include/uncat/types/types.hpp)
 
 # build as a library

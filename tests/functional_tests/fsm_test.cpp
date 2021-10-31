@@ -33,8 +33,8 @@ struct coin_operated_turnstile
 
 TEST_CASE("coin operated turnstile", "[fsm]")
 {
-    using uncat::state_machine;
-    using uncat::transition;
+    using uncat::fsm::state_machine
+        , uncat::fsm::transition;
 
     SECTION("with default constructor")
     {

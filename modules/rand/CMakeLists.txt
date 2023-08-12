@@ -5,7 +5,7 @@ string(TOLOWER ${name} name)
 
 # collect all header files
 set(headers
-    include/uncat/rand/fill.hpp)
+    include/uncat/rand/fill.h)
 
 # build as a library
 add_library(${name} INTERFACE ${headers})

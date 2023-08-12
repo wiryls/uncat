@@ -5,8 +5,8 @@ string(TOLOWER ${name} name)
 
 # collect all header files
 set(headers
-    include/uncat/types/concepts.hpp
-    include/uncat/types/types.hpp)
+    include/uncat/types/concepts.h
+    include/uncat/types/types.h)
 
 # build as a library
 add_library(${name} INTERFACE ${headers})

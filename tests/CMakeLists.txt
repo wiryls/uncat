@@ -12,7 +12,7 @@ set(FETCHCONTENT_QUIET ON)
 FetchContent_Declare(
     catch
     GIT_REPOSITORY https://github.com/catchorg/Catch2
-    GIT_TAG        v3.0.0-preview3
+    GIT_TAG         v3.4.0
     GIT_SHALLOW    ON)
 set(CATCH_INSTALL_DOCS   OFF CACHE INTERNAL "ignore catch docs")
 set(CATCH_INSTALL_EXTRAS OFF CACHE INTERNAL "ignore catch extras")

@@ -5,11 +5,11 @@ string(TOLOWER ${name} name)
 
 # source lists
 set(sources
-    exec_test.cpp
-    far_test.cpp
-    fsm_test.cpp
-    messenger_test.cpp
-    types_test.cpp)
+    exec_test.cc
+    far_test.cc
+    fsm_test.cc
+    messenger_test.cc
+    types_test.cc)
 
 # executable
 add_executable       (${name} ${sources})

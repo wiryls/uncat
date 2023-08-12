@@ -1,5 +1,6 @@
 #include <iostream>
-#include <uncat/far/far.hpp>
+
+#include <uncat/far/far.h>
 
 int main(void)
 {

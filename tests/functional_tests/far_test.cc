@@ -1,9 +1,10 @@
 ﻿#include <catch2/catch_test_macros.hpp>
 
 #include <list>
-#include <vector>
 #include <sstream>
-#include <uncat/far/far.hpp>
+#include <vector>
+
+#include <uncat/far/far.h>
 
 using uncat::far::operation, uncat::make_scanner, uncat::scan_mode;
 
@@ -40,7 +41,8 @@ TEST_CASE("constructor, trait, deduction guide", "[far]")
     }
     SECTION("std::wstring")
     {
-        static_assert(uncat::far::bidirectional_sequence<std::wstring, wchar_t>);
+        static_assert(uncat::far::bidirectional_sequence<
+                      std::wstring, wchar_t>);
         auto w = std::wstring();
         auto f = make_scanner<scan_mode::regex>(w, w);
         REQUIRE(f == true);
@@ -75,9 +77,9 @@ TEST_CASE("constructor, trait, deduction guide", "[far]")
     }
     SECTION("std::wstring const")
     {
-        auto x = std::wstring();
+        auto         x = std::wstring();
         auto const & w = x;
-        auto f = make_scanner<scan_mode::regex>(w, w);
+        auto         f = make_scanner<scan_mode::regex>(w, w);
         REQUIRE(f == true);
         auto g = f.generate(w);
         for (auto o = g(); o.has_value(); o = g())
@@ -107,11 +109,12 @@ TEST_CASE("a sample lazy loop", "[far]")
         auto const & replace = R"(ln)";
         auto const & example = R"(log(😅) = 💧 log(😄))";
 
-        auto cases = std::make_tuple
-            ( make_scanner<scan_mode::basic>(pattern, replace)
-            , make_scanner<scan_mode::icase>(pattern, replace)
-            , make_scanner<scan_mode::regex>(pattern, replace)
-            , make_scanner<scan_mode::regex>(pattern, replace, true) );
+        auto cases = std::make_tuple(
+            make_scanner<scan_mode::basic>(pattern, replace),
+            make_scanner<scan_mode::icase>(pattern, replace),
+            make_scanner<scan_mode::regex>(pattern, replace),
+            make_scanner<scan_mode::regex>(pattern, replace, true)
+        );
 
         auto tests = [&](auto const & f)
         {
@@ -177,48 +180,55 @@ TEST_CASE("a sample lazy loop", "[far]")
             }
         };
 
-        std::apply([=](auto && ... f) { (tests(f), ...); }, cases);
+        std::apply([=](auto &&... f) { (tests(f), ...); }, cases);
     }
 }
 
 TEST_CASE("iterator", "[far]")
 {
-    auto constexpr make_matcher = []
-        <uncat::far::char_type C>
-        (std::vector<std::pair<operation, std::basic_string<C>>> && vec)
+    auto constexpr make_matcher =
+        []<uncat::far::char_type C>(
+            std::vector<std::pair<operation, std::basic_string<C>>> && vec
+        )
     {
         auto head = vec.begin();
         auto tail = vec.end();
-        return [head=head, tail=tail, vec=std::move(vec)]
-            <uncat::far::bidirectional_iterative<C> I>
-            (uncat::far::change<C, I> const & var) mutable
+        return [head = head, tail = tail,
+                vec = std::move(vec)]<uncat::far::bidirectional_iterative<C> I>(
+                   uncat::far::change<C, I> const & var
+               ) mutable
         {
             if (head == tail)
                 return false;
 
             using defer = std::shared_ptr<void>;
-            defer _(nullptr, [&](...){ ++head; });
+            defer _(nullptr, [&](...) { ++head; });
 
             if (static_cast<std::size_t>(head->first) != var.index())
                 return false;
 
-            return std::visit([&lhs=head->second](auto && rhs)
-            {
-                using that = std::remove_cvref_t<decltype(rhs)>;
-                return std::equal
-                    ( std::ranges::begin(lhs), std::ranges::end(lhs)
-                    , std::ranges::begin(rhs), std::ranges::end(rhs) );
-            }, var);
+            return std::visit(
+                [&lhs = head->second](auto && rhs)
+                {
+                    using that = std::remove_cvref_t<decltype(rhs)>;
+                    return std::equal(
+                        std::ranges::begin(lhs), std::ranges::end(lhs),
+                        std::ranges::begin(rhs), std::ranges::end(rhs)
+                    );
+                },
+                var
+            );
         };
     };
 
     auto constexpr make_cases = [](auto const & pattern, auto const & replace)
     {
-        return std::make_tuple
-            ( make_scanner<scan_mode::basic>(pattern, replace)
-            , make_scanner<scan_mode::icase>(pattern, replace)
-            , make_scanner<scan_mode::regex>(pattern, replace)
-            , make_scanner<scan_mode::regex>(pattern, replace, true) );
+        return std::make_tuple(
+            make_scanner<scan_mode::basic>(pattern, replace),
+            make_scanner<scan_mode::icase>(pattern, replace),
+            make_scanner<scan_mode::regex>(pattern, replace),
+            make_scanner<scan_mode::regex>(pattern, replace, true)
+        );
     };
 
     SECTION("empty")
@@ -231,7 +241,7 @@ TEST_CASE("iterator", "[far]")
             REQUIRE(head == tail);
         };
 
-        std::apply([=](auto && ... f) { (tests(f), ...); }, cases);
+        std::apply([=](auto &&... f) { (tests(f), ...); }, cases);
     }
     SECTION("all the same")
     {
@@ -245,11 +255,11 @@ TEST_CASE("iterator", "[far]")
             auto retain = std::get_if<&operation::retain>(&*head);
             REQUIRE(retain != nullptr);
             REQUIRE(retain->begin() == dummy.begin());
-            REQUIRE(retain->  end() == dummy.  end());
+            REQUIRE(retain->end() == dummy.end());
             REQUIRE(++head == tail);
         };
 
-        std::apply([=](auto && ... f) { (tests(f), ...); }, cases);
+        std::apply([=](auto &&... f) { (tests(f), ...); }, cases);
     }
     SECTION("unicode with regex")
     {
@@ -258,28 +268,26 @@ TEST_CASE("iterator", "[far]")
 
         auto const & pattern = R"(不.+?。|，恶.+?？|悲.+?不)";
         auto const & replace = R"()";
-        auto const & example =
-            "为众人抱薪者，不可使其冻毙于风雪。"
-            "为苍生治水者，不可使其沉溺于湖海。"
-            "为当下奋斗者，不可使其淹没于尘埃。"
-            "为未来奠基者，不可使其从宽而入窄。"
-            "悲兮叹兮，若善者不得善终，恶者可更恶乎？";
+        auto const & example = "为众人抱薪者，不可使其冻毙于风雪。"
+                               "为苍生治水者，不可使其沉溺于湖海。"
+                               "为当下奋斗者，不可使其淹没于尘埃。"
+                               "为未来奠基者，不可使其从宽而入窄。"
+                               "悲兮叹兮，若善者不得善终，恶者可更恶乎？";
         auto const & output =
             "为众人抱薪者，为苍生治水者，为当下奋斗者，为未来奠基者，得善终";
 
         auto f = make_scanner<scan_mode::regex>(pattern, replace);
-        auto m = make_matcher(std::vector<std::pair<operation, std::string>>
-        {
-            { operation::retain, "为众人抱薪者，"},
-            { operation::remove, "不可使其冻毙于风雪。" },
-            { operation::retain, "为苍生治水者，" },
-            { operation::remove, "不可使其沉溺于湖海。" },
-            { operation::retain, "为当下奋斗者，" },
-            { operation::remove, "不可使其淹没于尘埃。" },
-            { operation::retain, "为未来奠基者，" },
-            { operation::remove, "不可使其从宽而入窄。悲兮叹兮，若善者不" },
-            { operation::retain, "得善终" },
-            { operation::remove, "，恶者可更恶乎？" },
+        auto m = make_matcher(std::vector<std::pair<operation, std::string>>{
+            {operation::retain, "为众人抱薪者，"},
+            {operation::remove, "不可使其冻毙于风雪。"},
+            {operation::retain, "为苍生治水者，"},
+            {operation::remove, "不可使其沉溺于湖海。"},
+            {operation::retain, "为当下奋斗者，"},
+            {operation::remove, "不可使其淹没于尘埃。"},
+            {operation::retain, "为未来奠基者，"},
+            {operation::remove, "不可使其从宽而入窄。悲兮叹兮，若善者不"},
+            {operation::retain, "得善终"},
+            {operation::remove, "，恶者可更恶乎？"},
         });
 
         auto oss = std::ostringstream();

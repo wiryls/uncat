@@ -5,7 +5,7 @@ string(TOLOWER ${name} name)
 
 # collect all header files
 set(headers
-    include/uncat/far/far.hpp)
+    include/uncat/far/far.h)
 
 # build as a library
 add_library(${name} INTERFACE ${headers})

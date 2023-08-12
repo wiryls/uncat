@@ -5,11 +5,11 @@ string(TOLOWER ${name} name)
 
 # collect all header files
 set(headers
-    include/uncat/exec/executor.hpp
-    include/uncat/exec/status.hpp)
+    include/uncat/exec/executor.h
+    include/uncat/exec/status.h)
 set(sources
-    src/executor.cpp
-    src/status.cpp)
+    src/executor.cc
+    src/status.cc)
 
 # build as a library
 add_library(${name} STATIC ${sources} ${headers})

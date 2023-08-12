@@ -2,18 +2,20 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <sstream>
-#include <uncat/far/far.hpp>
-#include <uncat/rand/fill.hpp>
+
+#include <uncat/far/far.h>
+#include <uncat/rand/fill.h>
 
 using uncat::far::operation, uncat::make_scanner, uncat::scan_mode;
 
 TEST_CASE(R"(regex "[a-z]" to "_")", "[far]")
 {
     auto input = std::string(512, '\0');
-    uncat::rand::fill_with(input,
-        "abcdefghijklmnopqrstuvwxyz"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "0123456789");
+    uncat::rand::fill_with(
+        input, "abcdefghijklmnopqrstuvwxyz"
+               "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+               "0123456789"
+    );
 
     auto const & pattern = R"([a-z])";
     auto const & replace = R"(_)";
@@ -68,8 +70,9 @@ TEST_CASE(R"(regex "[a-z]" to "_")", "[far]")
 
     BENCHMARK(R"(far::apply)")
     {
-        auto const rule = uncat::far::rule<uncat::far::mode::regex, char>
-            (pattern, replace, false);
+        auto const rule = uncat::far::rule<uncat::far::mode::regex, char>(
+            pattern, replace, false
+        );
 
         auto head = input.begin();
         auto tail = input.end();
@@ -80,10 +83,10 @@ TEST_CASE(R"(regex "[a-z]" to "_")", "[far]")
         uncat::far::apply(
             rule,
             [&](auto left, auto right) { o << std::string_view(left, right); },
-            [ ](auto, auto) {},
+            [](auto, auto) {},
             [&](auto left, auto right) { o << std::string_view(left, right); },
-            head,
-            tail);
+            head, tail
+        );
 
         return o.str();
     };
@@ -106,17 +109,17 @@ TEST_CASE(R"(plain text "0011" to "1100")", "[far]")
     {
         auto head = std::size_t{};
         auto tail = input.size();
-        auto o = std::ostringstream();
+        auto o    = std::ostringstream();
 
         auto s = input.begin();
         while (head < tail)
         {
             auto i = input.find(pattern, head);
-            if ( i == std::string::npos )
+            if (i == std::string::npos)
                 break;
 
-            o   << std::string_view(std::next(s, head), std::next(s, i))
-                << replace;
+            o << std::string_view(std::next(s, head), std::next(s, i))
+              << replace;
             head = i + 1;
         }
 
@@ -142,7 +145,6 @@ TEST_CASE(R"(plain text "0011" to "1100")", "[far]")
         return o.str();
     };
 
-
     BENCHMARK(R"(far::iterator)")
     {
         auto o = std::ostringstream();
@@ -159,7 +161,8 @@ TEST_CASE(R"(plain text "0011" to "1100")", "[far]")
 
     BENCHMARK(R"(far::apply)")
     {
-        auto const rule = uncat::far::rule<uncat::far::mode::basic, char>(pattern, replace);
+        auto const rule =
+            uncat::far::rule<uncat::far::mode::basic, char>(pattern, replace);
 
         auto head = input.begin();
         auto tail = input.end();
@@ -170,10 +173,10 @@ TEST_CASE(R"(plain text "0011" to "1100")", "[far]")
         uncat::far::apply(
             rule,
             [&](auto left, auto right) { o << std::string_view(left, right); },
-            [ ](auto, auto) {},
+            [](auto, auto) {},
             [&](auto left, auto right) { o << std::string_view(left, right); },
-            head,
-            tail);
+            head, tail
+        );
 
         return o.str();
     };

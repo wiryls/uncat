@@ -5,7 +5,7 @@ string(TOLOWER ${name} name)
 
 # collect all header files
 set(headers
-    "include/uncat/fsm/state_machine.hpp")
+    include/uncat/fsm/state_machine.h)
 
 # build as a library
 add_library(${name} INTERFACE ${headers})

@@ -5,7 +5,7 @@ string(TOLOWER ${name} name)
 
 # collect all header files
 set(headers
-    include/uncat/messenger/messenger.hpp)
+    include/uncat/messenger/messenger.h)
 
 # build as a library
 add_library(${name} INTERFACE ${headers})

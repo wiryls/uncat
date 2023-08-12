@@ -1,9 +1,10 @@
-#include <algorithm>
-#include <vector>
-#include <mutex>
 #include <catch2/catch_test_macros.hpp>
 
-#include <uncat/exec/executor.hpp>
+#include <algorithm>
+#include <mutex>
+#include <vector>
+
+#include <uncat/exec/executor.h>
 
 TEST_CASE("executor(0) is dead silence", "[exec]")
 {
@@ -41,7 +42,7 @@ TEST_CASE("executor(1) is strictly ordered", "[exec]")
         auto n = std::size_t(8);
         auto v = std::vector<std::size_t>();
         {
-            auto xs = std::vector<std::size_t>{ 0, 1, 2, 3, 4, 5, 6, 7 };
+            auto xs = std::vector<std::size_t>{0, 1, 2, 3, 4, 5, 6, 7};
             auto ex = uncat::exec::executor(1);
             {
                 using ctyp = std::vector<std::size_t>;
@@ -49,11 +50,8 @@ TEST_CASE("executor(1) is strictly ordered", "[exec]")
                 using bier = std::back_insert_iterator<ctyp>;
                 for (auto i = std::size_t(); i < m; ++i)
                 {
-                    ex(std::bind
-                    (
-                        std::copy<iter, bier>,
-                        xs.begin(),
-                        xs.end(),
+                    ex(std::bind(
+                        std::copy<iter, bier>, xs.begin(), xs.end(),
                         std::back_inserter(v)
                     ));
                 }
@@ -80,12 +78,14 @@ TEST_CASE("executor(n, n >= 2) is a mess", "[exec]")
             {
                 auto l = i;
                 auto r = i + x;
-                ex([&v, &m, l, r]
-                {
-                    std::scoped_lock _(m);
-                    for (auto i = l; i < r; ++i)
-                        v.push_back(i);
-                });
+                ex(
+                    [&v, &m, l, r]
+                    {
+                        std::scoped_lock _(m);
+                        for (auto i = l; i < r; ++i)
+                            v.push_back(i);
+                    }
+                );
             }
         }
 

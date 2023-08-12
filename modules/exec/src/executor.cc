@@ -1,19 +1,16 @@
-#include <uncat/exec/executor.hpp>
+#include <uncat/exec/executor.h>
 
 uncat::exec::executor::executor(std::size_t size)
-    : running(size > 0)
-    , tasks()
-    , mutex()
-    , condition()
-    , consumers()
+    : running(size > 0), tasks(), mutex(), condition(), consumers()
 {
     consumers.reserve(size);
     if (size == 0)
         running = false;
     else if (size == 1)
         consumers.emplace_back(&executor::one_for_all, this);
-    else while (size-- > 0)
-        consumers.emplace_back(&executor::one_for_one, this);
+    else
+        while (size-- > 0)
+            consumers.emplace_back(&executor::one_for_one, this);
 }
 
 uncat::exec::executor::~executor()
@@ -73,14 +70,15 @@ auto uncat::exec::executor::one_for_one() -> void
 auto uncat::exec::executor::one_for_all() -> void
 {
     auto todo = decltype(tasks)();
-    do {
+    do
+    {
         todo.clear();
         {
             auto lock = std::unique_lock(mutex);
             condition.wait(lock, [&] { return !tasks.empty() || !running; });
             std::swap(todo, tasks);
         }
-        for (auto& func : todo)
+        for (auto & func : todo)
             func();
     } while (!todo.empty());
 }

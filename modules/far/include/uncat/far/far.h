@@ -71,11 +71,11 @@ private:
     {};
 
     template <typename C, std::size_t N>
-        requires(N > 0) && requires(C const (&c)[N]) {
-            {
-                c + N
-            } -> std::contiguous_iterator;
-        }
+    requires(N > 0) && requires(C const (&c)[N]) {
+        {
+            c + N
+        } -> std::contiguous_iterator;
+    }
     struct zero_suffixed<C (&)[N]> : std::true_type
     {
         static constexpr std::ptrdiff_t N = N;
@@ -107,7 +107,8 @@ namespace uncat { namespace far {
 template <char_type C> struct icase_comparator
 {
     std::locale locale;
-    auto        operator()(C lhs, C rhs) const noexcept -> bool
+
+    auto operator()(C lhs, C rhs) const noexcept -> bool
     {
         return std::tolower(lhs, locale) == std::tolower(rhs, locale);
     }
@@ -133,16 +134,19 @@ public: // constructors and assignments
         , replace(aux::begin(r), aux::end(r))
         , chooser(bind(pattern))
     {}
+
     basic_or_icase_rule(basic_or_icase_rule && rhs)
         : pattern(std::move(rhs.pattern))
         , replace(std::move(rhs.replace))
         , chooser(bind(pattern))
     {}
+
     basic_or_icase_rule(basic_or_icase_rule const & rhs)
         : pattern(rhs.pattern)
         , replace(rhs.replace)
         , chooser(bind(pattern))
     {}
+
     auto operator=(basic_or_icase_rule && rhs) -> basic_or_icase_rule &
     {
         pattern = std::move(rhs.pattern);
@@ -150,6 +154,7 @@ public: // constructors and assignments
         chooser = bind(pattern);
         return this;
     }
+
     auto operator=(basic_or_icase_rule const & rhs) -> basic_or_icase_rule &
     {
         pattern = rhs.pattern;
@@ -174,7 +179,7 @@ template <typename T, typename I> struct operator_string_view
 {};
 
 template <typename T, std::contiguous_iterator I>
-    requires char_type<std::iter_value_t<I>>
+requires char_type<std::iter_value_t<I>>
 struct operator_string_view<T, I>
 {
     explicit constexpr operator auto() const noexcept
@@ -195,14 +200,17 @@ struct iterator_pair
     {
         return this->first;
     }
+
     decltype(auto) constexpr begin() const noexcept
     {
         return this->first;
     }
+
     decltype(auto) constexpr end() noexcept
     {
         return this->second;
     }
+
     decltype(auto) constexpr end() const noexcept
     {
         return this->second;
@@ -280,7 +288,7 @@ enum struct operation : int
 };
 
 template <typename T>
-    requires std::same_as<operation, std::remove_cvref_t<T>> && (!std::is_reference_v<T>)
+requires std::same_as<operation, std::remove_cvref_t<T>> && (!std::is_reference_v<T>)
 auto inline consteval operator&(T && t) noexcept
 {
     // let us treat std::underlying_type_t as the "address" of our enum.
@@ -330,7 +338,7 @@ template <mode M, char_type C, bidirectional_iterative<C> I> class generator;
 template <mode M, char_type C, bidirectional_iterative<C> I> generator(rule<M, C> const &, I, I) -> generator<M, C, I>;
 
 template <mode M, char_type C, bidirectional_iterative<C> I>
-    requires(M == mode::basic || M == mode::icase)
+requires(M == mode::basic || M == mode::icase)
 class generator<M, C, I>
 {
 public:
@@ -685,7 +693,7 @@ concept output = requires(F fun, I first, I last) {
 template <
     mode M, char_type C, bidirectional_iterative<C> I, output<I> R /* retain */, output<I> O /* remove */,
     output<typename std::basic_string<C>::const_iterator> N /* insert */>
-    requires(M == mode::basic || M == mode::icase)
+requires(M == mode::basic || M == mode::icase)
 auto apply(rule<M, C> const & rule, R retain, O remove, N insert, I head, I tail) -> void
 {
     using tag = std::iterator_traits<I>::iterator_category;
@@ -720,7 +728,7 @@ auto apply(rule<M, C> const & rule, R retain, O remove, N insert, I head, I tail
 template <
     mode M, char_type C, bidirectional_iterative<C> I, output<I> R /* retain */, output<I> O /* remove */,
     output<typename std::basic_string<C>::const_iterator> N /* insert */>
-    requires(M == mode::regex)
+requires(M == mode::regex)
 auto apply(rule<M, C> const & rule, R retain, O remove, N insert, I first, I last) -> void
 {
     auto constexpr static exe = std::execution::unseq;
@@ -793,20 +801,20 @@ public:
     using mode = far::mode;
 
     [[nodiscard]] operator bool() const
-        requires(M == mode::regex)
+    requires(M == mode::regex)
     {
         return !rule.error.has_value();
     }
 
 public:
     template <far::sequence<C> P, far::sequence<C> R>
-        requires(M == mode::basic || M == mode::icase)
+    requires(M == mode::basic || M == mode::icase)
     scanner(P const & pattern, R const & replace)
         : rule(pattern, replace)
     {}
 
     template <far::sequence<C> P, far::sequence<C> R>
-        requires(M == mode::regex)
+    requires(M == mode::regex)
     scanner(P const & pattern, R const & replace, bool ignore_case = false)
         : rule(pattern, replace, ignore_case)
     {}
@@ -818,7 +826,7 @@ private:
 template <
     far::mode M, std::ranges::forward_range P, std::ranges::forward_range R,
     far::char_type C = std::ranges::range_value_t<P>>
-    requires(M == far::mode::basic || M == far::mode::icase)
+requires(M == far::mode::basic || M == far::mode::icase)
 [[nodiscard]] auto inline make_scanner(P const & pattern, R const & replace)
 {
     return scanner<M, C>(pattern, replace);
@@ -827,7 +835,7 @@ template <
 template <
     far::mode M, std::ranges::forward_range P, std::ranges::forward_range R,
     far::char_type C = std::ranges::range_value_t<P>>
-    requires(M == far::mode::regex)
+requires(M == far::mode::regex)
 [[nodiscard]] auto inline make_scanner(P const & pattern, R const & replace, bool ignore_case = false)
 {
     return scanner<M, C>(pattern, replace, ignore_case);

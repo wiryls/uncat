@@ -118,9 +118,9 @@ IndentAccessModifiers: false
 IndentCaseBlocks: false
 IndentCaseLabels: false
 IndentExternBlock: AfterExternBlock
-IndentGotoLabels: true
+IndentGotoLabels: false
 IndentPPDirectives: None
-IndentRequiresClause: true
+IndentRequiresClause: false
 IndentWidth: 4
 IndentWrappedFunctionNames: false
 InsertBraces: false
@@ -168,7 +168,7 @@ RemoveBracesLLVM: false
 RemoveSemicolon: false
 RequiresClausePosition: OwnLine
 RequiresExpressionIndentation: OuterScope
-SeparateDefinitionBlocks: Leave
+SeparateDefinitionBlocks: Always
 ShortNamespaceLines: 2
 SortIncludes: CaseSensitive
 SortJavaStaticImport: Before

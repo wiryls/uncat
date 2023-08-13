@@ -76,7 +76,7 @@ template <template <typename...> class F, template <typename...> class C, typena
 };
 
 template <template <typename...> class M, typename C>
-    requires requires { typename map<M, C>::type; }
+requires requires { typename map<M, C>::type; }
 using map_t = typename map<M, C>::type;
 
 /// a -> ... a ... -> bool
@@ -98,14 +98,14 @@ template <
 struct find;
 
 template <template <typename> class P, typename H, typename... T>
-    requires(P<H>::value == false && any_v<P, T...>)
+requires(P<H>::value == false && any_v<P, T...>)
 struct find<P, H, T...>
 {
     using type = typename find<P, T...>::type;
 };
 
 template <template <typename> class P, typename H, typename... T>
-    requires(P<H>::value)
+requires(P<H>::value)
 struct find<P, H, T...>
 {
     using type = H;
@@ -114,7 +114,7 @@ struct find<P, H, T...>
 template <
     template <typename> class P, // unary predicate
     typename... T>               // type list
-    requires requires { typename find<P, T...>::type; }
+requires requires { typename find<P, T...>::type; }
 using find_t = typename find<P, T...>::type;
 
 }} // namespace uncat::types
@@ -136,7 +136,7 @@ template <template <typename...> class C, typename... L, typename... R> struct j
 };
 
 template <typename L, typename R>
-    requires requires { typename join<L, R>::type; }
+requires requires { typename join<L, R>::type; }
 using join_t = typename join<L, R>::type;
 
 /// [a...b] -> [b...a]
@@ -154,7 +154,7 @@ template <template <typename...> class C> struct reverse<C<>>
 };
 
 template <typename C>
-    requires requires { typename reverse<C>::type; }
+requires requires { typename reverse<C>::type; }
 using reverse_t = typename reverse<C>::type;
 
 /// a -> [...] -> bool
@@ -197,7 +197,7 @@ struct is_subset<C<L...>, C<R...>> : std::bool_constant<(exists<L, R...>::value 
 {};
 
 template <typename L, typename R>
-    requires requires { is_subset<L, R>::value; }
+requires requires { is_subset<L, R>::value; }
 auto inline constexpr is_subset_v = is_subset<L, R>::value;
 
 /// distinct
@@ -214,12 +214,12 @@ template <template <typename...> class C> struct distinct<C<>>
 };
 
 template <typename C>
-    requires requires { typename distinct<C>::type; }
+requires requires { typename distinct<C>::type; }
 using distinct_t = typename distinct<C>::type;
 
 /// stable version
 template <typename C>
-    requires requires { typename reverse_t<C>; }
+requires requires { typename reverse_t<C>; }
 using distinct_stable_t = reverse_t<distinct_t<reverse_t<C>>>;
 
 }} // namespace uncat::types

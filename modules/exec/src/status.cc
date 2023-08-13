@@ -14,7 +14,7 @@ private: // padding
 
     /* padding type */
     template <std::size_t... N>
-        requires(pad > sum<N...>)
+    requires(pad > sum<N...>)
     using padding = std::uint8_t[pad - sum<N...>];
 
 public: // members

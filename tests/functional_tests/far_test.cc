@@ -183,14 +183,14 @@ TEST_CASE("a sample lazy loop", "[far]")
 
 TEST_CASE("iterator", "[far]")
 {
-    auto constexpr make_matcher =
-        []<uncat::far::char_type C>(std::vector<std::pair<operation, std::basic_string<C>>> && vec)
+    using uncat::far::char_type;
+    auto constexpr make_matcher = []<char_type C>(std::vector<std::pair<operation, std::basic_string<C>>> && vec)
     {
         auto head = vec.begin();
         auto tail = vec.end();
-        return [head = head, tail = tail,
-                vec = std::move(vec)]<uncat::far::bidirectional_iterative<C> I>(uncat::far::change<C, I> const & var
-               ) mutable
+        return
+            [head, tail,
+             vec = std::move(vec)]<uncat::far::bidirectional_iterative<C> I>(uncat::far::change<C, I> const & c) mutable
         {
             if (head == tail)
                 return false;
@@ -198,7 +198,7 @@ TEST_CASE("iterator", "[far]")
             using defer = std::shared_ptr<void>;
             defer _(nullptr, [&](...) { ++head; });
 
-            if (static_cast<std::size_t>(head->first) != var.index())
+            if (static_cast<std::size_t>(head->first) != c.index())
                 return false;
 
             return std::visit(
@@ -209,7 +209,7 @@ TEST_CASE("iterator", "[far]")
                         std::ranges::begin(lhs), std::ranges::end(lhs), std::ranges::begin(rhs), std::ranges::end(rhs)
                     );
                 },
-                var
+                c
             );
         };
     };

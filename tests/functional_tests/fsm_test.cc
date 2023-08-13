@@ -4,10 +4,13 @@
 
 struct locked_state
 {};
+
 struct unlocked_state
 {};
+
 struct push_input
 {};
+
 struct coin_input
 {};
 
@@ -18,6 +21,7 @@ struct coin_operated_turnstile
     {
         return unlocked_state();
     }
+
     /// unlocked_state --push_input--> locked_state
     inline locked_state operator()(unlocked_state &, push_input)
     {
@@ -29,6 +33,7 @@ struct coin_operated_turnstile
     {
         return unlocked_state();
     }
+
     /// unexpected transition, should be ignored
     inline locked_state operator()(unlocked_state &, coin_input)
     {

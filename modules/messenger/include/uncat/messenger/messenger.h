@@ -30,7 +30,7 @@ public:
     template <types::oneof<E...> T> auto remove_handler(name_t name) -> messenger &;
 
     template <typename T>
-        requires types::oneof<std::remove_cvref_t<T>, E...>
+    requires types::oneof<std::remove_cvref_t<T>, E...>
     auto send(T && event) -> messenger &;
 
 public:
@@ -65,7 +65,7 @@ inline auto messenger<K, E...>::remove_handler(name_t name) -> messenger &
 
 template <typename K, typename... E>
 template <typename T>
-    requires types::oneof<std::remove_cvref_t<T>, E...>
+requires types::oneof<std::remove_cvref_t<T>, E...>
 inline auto messenger<K, E...>::send(T && event) -> messenger &
 {
     todo([this, event = std::move(event)] { send_unsafe<std::remove_cvref_t<T>>(event); });

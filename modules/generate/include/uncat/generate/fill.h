@@ -9,7 +9,7 @@ namespace uncat { namespace generate {
 
 template <std::forward_iterator O, std::random_access_iterator I>
 inline auto fill_with(O first, O last, I input_first, I input_last) -> void
-    requires requires(O o, I i) { *o = *i; }
+requires requires(O o, I i) { *o = *i; }
 {
     using difference_type = typename std::iterator_traits<I>::difference_type;
 
@@ -27,7 +27,7 @@ inline auto fill_with(O first, O last, I input_first, I input_last) -> void
 
 template <std::ranges::forward_range O, std::ranges::random_access_range I>
 inline auto fill_with(O & output, I const & input) -> void
-    requires std::same_as<std::ranges::range_value_t<I>, std::ranges::range_value_t<O>>
+requires std::same_as<std::ranges::range_value_t<I>, std::ranges::range_value_t<O>>
 {
     auto output_first = std::ranges::begin(output);
     auto output_last  = std::ranges::end(output);

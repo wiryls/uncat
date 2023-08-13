@@ -26,7 +26,7 @@ private:
     };
 
     template <template <typename...> class C, typename S, typename D, typename... I, typename... U>
-        requires validator<M, C<S, D, I...>>::value && (validator<M, U>::value && ...)
+    requires validator<M, C<S, D, I...>>::value && (validator<M, U>::value && ...)
     struct collect<C<S, D, I...>, U...>
     {
         using action  = M;
@@ -62,7 +62,7 @@ private:
 public:
     template <typename S, typename X>
     state_machine(S && state, X && action)
-        requires types::in<S, states>;
+    requires types::in<S, states>;
     state_machine();
 
     state_machine(state_machine const &)             = default;
@@ -73,7 +73,7 @@ public:
 public:
     template <typename I>
     auto accept(I && input) -> bool
-        requires types::in<I, inputs>;
+    requires types::in<I, inputs>;
 
 private:
     using holder = types::map_t<std::variant, states>;
@@ -84,7 +84,7 @@ private:
 template <typename F, typename... T>
 template <typename S, typename X>
 inline state_machine<F, T...>::state_machine(S && init, X && next)
-    requires types::in<S, states>
+requires types::in<S, states>
     : state(std::forward<S>(init))
     , shift(std::forward<X>(next))
 {}
@@ -98,7 +98,7 @@ inline state_machine<F, T...>::state_machine()
 template <typename F, typename... T>
 template <typename I>
 inline auto state_machine<F, T...>::accept(I && input) -> bool
-    requires types::in<I, inputs>
+requires types::in<I, inputs>
 {
     return std::visit(
         [this, &input](auto & current) -> bool

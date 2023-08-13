@@ -63,10 +63,7 @@ auto uncat::exec::progress::holdon() const noexcept -> void
 auto uncat::exec::progress::cancel() noexcept -> void
 {
     auto current = status::running;
-    state.compare_exchange_strong(
-        current, status::halting, std::memory_order_release,
-        std::memory_order_relaxed
-    );
+    state.compare_exchange_strong(current, status::halting, std::memory_order_release, std::memory_order_relaxed);
 }
 
 auto uncat::exec::progress::increase() noexcept -> void
@@ -77,10 +74,7 @@ auto uncat::exec::progress::increase() noexcept -> void
     if (refer.fetch_add(1, std::memory_order_relaxed) == 0)
     {
         auto current = status::pending;
-        state.compare_exchange_strong(
-            current, status::running, std::memory_order_release,
-            std::memory_order_relaxed
-        );
+        state.compare_exchange_strong(current, status::running, std::memory_order_release, std::memory_order_relaxed);
     }
 }
 
@@ -139,7 +133,8 @@ auto uncat::exec::control::wait() const -> void
     data->holdon();
 }
 
-uncat::exec::control::control(sensor && ex) : data()
+uncat::exec::control::control(sensor && ex)
+    : data()
 {
     if (ex.data)
     {
@@ -185,12 +180,14 @@ uncat::exec::sensor::sensor(std::size_t max)
         data->max(max);
 }
 
-uncat::exec::sensor::sensor(sensor && rhs) noexcept : data(std::move(rhs.data))
+uncat::exec::sensor::sensor(sensor && rhs) noexcept
+    : data(std::move(rhs.data))
 {
     rhs.data = nullptr;
 }
 
-uncat::exec::sensor::sensor(sensor const & rhs) : data(rhs.data)
+uncat::exec::sensor::sensor(sensor const & rhs)
+    : data(rhs.data)
 {
     if (data)
         data->increase();

@@ -43,8 +43,7 @@ TEST_CASE("coin operated turnstile", "[fsm]")
     SECTION("with default constructor")
     {
         auto m = state_machine<
-            coin_operated_turnstile,
-            transition<locked_state, unlocked_state, coin_input>,
+            coin_operated_turnstile, transition<locked_state, unlocked_state, coin_input>,
             transition<unlocked_state, locked_state, push_input>>();
 
         for (auto i = 0; i < 3; ++i)
@@ -58,11 +57,8 @@ TEST_CASE("coin operated turnstile", "[fsm]")
     SECTION("with another constructor")
     {
         auto m = state_machine<
-            coin_operated_turnstile,
-            transition<locked_state, unlocked_state, coin_input>,
-            transition<unlocked_state, locked_state, push_input>>(
-            unlocked_state(), coin_operated_turnstile()
-        );
+            coin_operated_turnstile, transition<locked_state, unlocked_state, coin_input>,
+            transition<unlocked_state, locked_state, push_input>>(unlocked_state(), coin_operated_turnstile());
 
         for (auto i = 0; i < 3; ++i)
         {
@@ -77,8 +73,7 @@ TEST_CASE("coin operated turnstile", "[fsm]")
         struct wrapper
         {
             state_machine<
-                coin_operated_turnstile,
-                transition<locked_state, unlocked_state, coin_input>,
+                coin_operated_turnstile, transition<locked_state, unlocked_state, coin_input>,
                 transition<unlocked_state, locked_state, push_input>>
                 machine;
         };

@@ -1,7 +1,11 @@
 #include <uncat/exec/executor.h>
 
 uncat::exec::executor::executor(std::size_t size)
-    : running(size > 0), tasks(), mutex(), condition(), consumers()
+    : running(size > 0)
+    , tasks()
+    , mutex()
+    , condition()
+    , consumers()
 {
     consumers.reserve(size);
     if (size == 0)

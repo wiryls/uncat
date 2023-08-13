@@ -22,10 +22,7 @@
 #include <type_traits>
 #include <variant>
 
-namespace uncat
-{
-namespace far
-{
+namespace uncat { namespace far {
 
 // char types that scanner supports.
 template <typename C>
@@ -36,8 +33,7 @@ concept char_type = requires {
 
 // iterators of char_type.
 template <typename I, typename C>
-concept iterative = char_type<C> && std::input_or_output_iterator<I> &&
-                    std::same_as<std::iter_value_t<I>, C>;
+concept iterative = char_type<C> && std::input_or_output_iterator<I> && std::same_as<std::iter_value_t<I>, C>;
 
 // forward iterators of char_type.
 // - required by std::regex constructor.
@@ -47,37 +43,25 @@ concept forward_iterative = iterative<I, C> && std::forward_iterator<I>;
 // bidirectional iterators of char_type.
 // - required by std::default_searcher.
 template <typename I, typename C>
-concept bidirectional_iterative =
-    iterative<I, C> && std::bidirectional_iterator<I>;
+concept bidirectional_iterative = iterative<I, C> && std::bidirectional_iterator<I>;
 
 // ranges of char_type.
 template <typename S, typename C>
-concept sequence =
-    std::ranges::range<S> && iterative<std::ranges::iterator_t<S>, C>;
+concept sequence = std::ranges::range<S> && iterative<std::ranges::iterator_t<S>, C>;
 
 // forward ranges of char_type.
 // - used when constructing scanner.
 template <typename S, typename C>
-concept forward_sequence =
-    std::ranges::range<S> && forward_iterative<std::ranges::iterator_t<S>, C>;
+concept forward_sequence = std::ranges::range<S> && forward_iterative<std::ranges::iterator_t<S>, C>;
 
 // bidirectional ranges of char_type.
 // - used when constructing scanner.
 template <typename S, typename C>
-concept bidirectional_sequence =
-    std::ranges::range<S> &&
-    bidirectional_iterative<std::ranges::iterator_t<S>, C>;
-} // namespace far
-} // namespace uncat
+concept bidirectional_sequence = std::ranges::range<S> && bidirectional_iterative<std::ranges::iterator_t<S>, C>;
+}} // namespace uncat::far
 
-namespace uncat
-{
-namespace far
-{
-namespace aux
-{
-namespace detail
-{
+namespace uncat { namespace far { namespace aux {
+namespace detail {
 
 //// rewite std::ranges::end("string literal") to that - 1
 struct end
@@ -99,8 +83,7 @@ private:
 
 public:
     template <std::ranges::range R>
-    auto constexpr operator()(R && r) const
-        noexcept(noexcept(std::ranges::end(std::forward<R>(r))))
+    auto constexpr operator()(R && r) const noexcept(noexcept(std::ranges::end(std::forward<R>(r))))
     {
         if constexpr (zero_suffixed<R>::value)
             // or maybe return a custom sentinel?
@@ -110,18 +93,15 @@ public:
             return std::ranges::end(std::forward<R>(r));
     }
 };
+
 } // namespace detail
 
 inline constexpr auto begin = std::ranges::begin;
 inline constexpr auto end   = detail::end{};
-} // namespace aux
-} // namespace far
-} // namespace uncat
 
-namespace uncat
-{
-namespace far
-{
+}}} // namespace uncat::far::aux
+
+namespace uncat { namespace far {
 //// helpers
 
 template <char_type C> struct icase_comparator
@@ -133,16 +113,14 @@ template <char_type C> struct icase_comparator
     }
 };
 
-template <char_type C, std::invocable<C, C> F = std::equal_to<>>
-struct basic_or_icase_rule
+template <char_type C, std::invocable<C, C> F = std::equal_to<>> struct basic_or_icase_rule
 {
 public: // types
     using string          = std::basic_string<C>;
     using string_iterator = typename string::const_iterator;
-    using prefered =
-        std::boyer_moore_searcher<string_iterator, std::hash<C>, F>;
-    using fallback = std::default_searcher<string_iterator, F>;
-    using switcher = std::pair<prefered, fallback>;
+    using prefered        = std::boyer_moore_searcher<string_iterator, std::hash<C>, F>;
+    using fallback        = std::default_searcher<string_iterator, F>;
+    using switcher        = std::pair<prefered, fallback>;
 
 public: // data
     string   pattern;
@@ -161,7 +139,9 @@ public: // constructors and assignments
         , chooser(bind(pattern))
     {}
     basic_or_icase_rule(basic_or_icase_rule const & rhs)
-        : pattern(rhs.pattern), replace(rhs.replace), chooser(bind(pattern))
+        : pattern(rhs.pattern)
+        , replace(rhs.replace)
+        , chooser(bind(pattern))
     {}
     auto operator=(basic_or_icase_rule && rhs) -> basic_or_icase_rule &
     {
@@ -185,8 +165,7 @@ private:
         // as a member. Be careful that do not change pattern. Any reallocation
         // may break our searcher, as well as move a small string.
         return std::make_pair(
-            prefered(that.begin(), that.end(), std::hash<C>{}, F{}),
-            fallback(that.begin(), that.end(), F{})
+            prefered(that.begin(), that.end(), std::hash<C>{}, F{}), fallback(that.begin(), that.end(), F{})
         );
     }
 };
@@ -233,13 +212,10 @@ struct iterator_pair
     // "operator auto()" after an update. It forces me to replace "requires"
     // with CRTP.
 };
-} // namespace far
-} // namespace uncat
 
-namespace uncat
-{
-namespace far
-{
+}} // namespace uncat::far
+
+namespace uncat { namespace far {
 //// rule (immutable)
 
 enum struct mode
@@ -258,8 +234,7 @@ template <char_type C> struct rule<mode::basic, C> : basic_or_icase_rule<C>
     {}
 };
 
-template <char_type C>
-struct rule<mode::icase, C> : basic_or_icase_rule<C, icase_comparator<C>>
+template <char_type C> struct rule<mode::icase, C> : basic_or_icase_rule<C, icase_comparator<C>>
 {
     rule(sequence<C> auto const & pattern, sequence<C> auto const & replace)
         : basic_or_icase_rule<C, icase_comparator<C>>(pattern, replace)
@@ -270,19 +245,19 @@ template <char_type C> struct rule<mode::regex, C>
 {
     template <forward_sequence<C> P, sequence<C> R>
     rule(P const & pattern, R const & replace, bool ignore_case)
-        : pattern(), replace(aux::begin(replace), aux::end(replace)), error()
+        : pattern()
+        , replace(aux::begin(replace), aux::end(replace))
+        , error()
     {
         try
         {
-            using option_type    = std::regex_constants::syntax_option_type;
+            using option_type = std::regex_constants::syntax_option_type;
+
             auto constexpr basic = std::regex_constants::ECMAScript;
             auto constexpr icase = std::regex_constants::icase;
 
-            auto option =
-                static_cast<option_type>(basic | (ignore_case ? icase : 0));
-            this->pattern = std::basic_regex<C>(
-                aux::begin(pattern), aux::end(pattern), option
-            );
+            auto option   = static_cast<option_type>(basic | (ignore_case ? icase : 0));
+            this->pattern = std::basic_regex<C>(aux::begin(pattern), aux::end(pattern), option);
         }
         catch (std::regex_error const & ex)
         {
@@ -305,30 +280,26 @@ enum struct operation : int
 };
 
 template <typename T>
-    requires std::same_as<operation, std::remove_cvref_t<T>> &&
-             (!std::is_reference_v<T>)
+    requires std::same_as<operation, std::remove_cvref_t<T>> && (!std::is_reference_v<T>)
 auto inline consteval operator&(T && t) noexcept
 {
     // let us treat std::underlying_type_t as the "address" of our enum.
     return static_cast<std::underlying_type_t<operation>>(t);
 }
 
-template <char_type C, bidirectional_iterative<C> I>
-struct retain : iterator_pair<I>
+template <char_type C, bidirectional_iterative<C> I> struct retain : iterator_pair<I>
 {
     using iterator = I;
     using iterator_pair<I>::iterator_pair;
 };
 
-template <char_type C, bidirectional_iterative<C> I>
-struct remove : iterator_pair<I>
+template <char_type C, bidirectional_iterative<C> I> struct remove : iterator_pair<I>
 {
     using iterator = I;
     using iterator_pair<I>::iterator_pair;
 };
 
-template <char_type C>
-struct insert : iterator_pair<typename std::basic_string<C>::const_iterator>
+template <char_type C> struct insert : iterator_pair<typename std::basic_string<C>::const_iterator>
 {
     using iterator = typename std::basic_string<C>::const_iterator;
     using iterator_pair<iterator>::iterator_pair;
@@ -337,13 +308,9 @@ struct insert : iterator_pair<typename std::basic_string<C>::const_iterator>
 template <char_type C, std::bidirectional_iterator I>
 using change = std::variant<retain<C, I>, remove<C, I>, insert<C>>;
 
-} // namespace far
-} // namespace uncat
+}} // namespace uncat::far
 
-namespace uncat
-{
-namespace far
-{
+namespace uncat { namespace far {
 //// generator
 
 enum struct generator_status
@@ -360,8 +327,7 @@ template <mode M, char_type C, bidirectional_iterative<C> I> class generator;
 
 // attention:
 // lifetime of rule must be longer than this generator.
-template <mode M, char_type C, bidirectional_iterative<C> I>
-generator(rule<M, C> const &, I, I) -> generator<M, C, I>;
+template <mode M, char_type C, bidirectional_iterative<C> I> generator(rule<M, C> const &, I, I) -> generator<M, C, I>;
 
 template <mode M, char_type C, bidirectional_iterative<C> I>
     requires(M == mode::basic || M == mode::icase)
@@ -383,8 +349,7 @@ public:
             while (head != tail)
             {
                 using tag = std::iterator_traits<I>::iterator_category;
-                if constexpr (std::is_base_of_v<
-                                  std::random_access_iterator_tag, tag>)
+                if constexpr (std::is_base_of_v<std::random_access_iterator_tag, tag>)
                     curr = (rule.chooser.first)(head, tail);
                 else
                     curr = (rule.chooser.second)(head, tail);
@@ -465,8 +430,7 @@ private:
     generator_status              stat;
 };
 
-template <char_type C, bidirectional_iterative<C> I>
-class generator<mode::regex, C, I>
+template <char_type C, bidirectional_iterative<C> I> class generator<mode::regex, C, I>
 {
 public:
     auto operator()() -> std::optional<change<C, I>>
@@ -488,9 +452,7 @@ public:
                     auto const & m   = (*head)[0];
                     auto const & b   = buff;
 
-                    if (m.first == m.second ||
-                        std::equal(e, b.begin(), b.end(), m.first, m.second))
-                        [[unlikely]]
+                    if (m.first == m.second || std::equal(e, b.begin(), b.end(), m.first, m.second)) [[unlikely]]
                         continue;
 
                     if (curr != m.first)
@@ -538,7 +500,10 @@ public:
 
 public:
     generator(rule<mode::regex, C> const & rule, I first, I last)
-        : rule(rule), curr(first), last(last), head()
+        : rule(rule)
+        , curr(first)
+        , last(last)
+        , head()
     {
         if (first == last)
             stat = generator_status::stopped;
@@ -562,8 +527,7 @@ private:
 
 template <mode M, char_type C, bidirectional_iterative<C> I> class iterator;
 
-template <mode M, char_type C, bidirectional_iterative<C> I>
-iterator(generator<M, C, I> &&) -> iterator<M, C, I>;
+template <mode M, char_type C, bidirectional_iterative<C> I> iterator(generator<M, C, I> &&) -> iterator<M, C, I>;
 
 template <mode M, char_type C, bidirectional_iterative<C> I> class iterator
 {
@@ -677,8 +641,7 @@ public:
     {
         auto & l = lhs.func;
         auto & r = rhs.func;
-        return (l != nullptr && r != nullptr && l.get() == r.get()) ||
-               (l == nullptr && r == nullptr);
+        return (l != nullptr && r != nullptr && l.get() == r.get()) || (l == nullptr && r == nullptr);
     }
 
     friend auto operator!=(iterator const & lhs, iterator const & rhs) -> bool
@@ -693,7 +656,8 @@ public:
         ++*this;
     }
 
-    iterator() noexcept : func()
+    iterator() noexcept
+        : func()
     {}
 
 private:
@@ -705,13 +669,10 @@ private:
     std::optional<value_type> next{std::nullopt};
     std::optional<value_type> last{std::nullopt};
 };
-} // namespace far
-} // namespace uncat
 
-namespace uncat
-{
-namespace far
-{
+}} // namespace uncat::far
+
+namespace uncat { namespace far {
 //// control group
 
 template <typename F, typename I>
@@ -722,13 +683,10 @@ concept output = requires(F fun, I first, I last) {
 };
 
 template <
-    mode M, char_type C, bidirectional_iterative<C> I, output<I> R /* retain */,
-    output<I>                                             O /* remove */,
+    mode M, char_type C, bidirectional_iterative<C> I, output<I> R /* retain */, output<I> O /* remove */,
     output<typename std::basic_string<C>::const_iterator> N /* insert */>
     requires(M == mode::basic || M == mode::icase)
-auto apply(
-    rule<M, C> const & rule, R retain, O remove, N insert, I head, I tail
-) -> void
+auto apply(rule<M, C> const & rule, R retain, O remove, N insert, I head, I tail) -> void
 {
     using tag = std::iterator_traits<I>::iterator_category;
 
@@ -760,18 +718,15 @@ auto apply(
 }
 
 template <
-    mode M, char_type C, bidirectional_iterative<C> I, output<I> R /* retain */,
-    output<I>                                             O /* remove */,
+    mode M, char_type C, bidirectional_iterative<C> I, output<I> R /* retain */, output<I> O /* remove */,
     output<typename std::basic_string<C>::const_iterator> N /* insert */>
     requires(M == mode::regex)
-auto apply(
-    rule<M, C> const & rule, R retain, O remove, N insert, I first, I last
-) -> void
+auto apply(rule<M, C> const & rule, R retain, O remove, N insert, I first, I last) -> void
 {
     auto constexpr static exe = std::execution::unseq;
-    auto head = std::regex_iterator<I>(first, last, rule.pattern);
-    auto tail = std::regex_iterator<I>();
-    auto buff = std::basic_string<C>();
+    auto head                 = std::regex_iterator<I>(first, last, rule.pattern);
+    auto tail                 = std::regex_iterator<I>();
+    auto buff                 = std::basic_string<C>();
 
     for (; head != tail; ++head)
     {
@@ -782,8 +737,7 @@ auto apply(
         head->format(std::back_inserter(buff), rule.replace);
 
         auto const & [_, left, right] = (*head)[0];
-        if (left == right ||
-            std::equal(exe, buff.begin(), buff.end(), left, right)) [[unlikely]]
+        if (left == right || std::equal(exe, buff.begin(), buff.end(), left, right)) [[unlikely]]
             continue;
 
         if (first != left)
@@ -800,11 +754,9 @@ auto apply(
     if (first != last)
         retain(first, last);
 }
-} // namespace far
-} // namespace uncat
+}} // namespace uncat::far
 
-namespace uncat
-{
+namespace uncat {
 //// export to outter namespace
 
 using scan_mode = far::mode;
@@ -812,34 +764,29 @@ using scan_mode = far::mode;
 template <far::mode M, far::char_type C> class scanner
 {
 public:
-    template <far::bidirectional_sequence<C> R>
-    [[nodiscard]] auto inline generate(R & container) const
+    template <far::bidirectional_sequence<C> R> [[nodiscard]] auto inline generate(R & container) const
     {
         using namespace far;
         return generate(aux::begin(container), aux::end(container));
     }
 
     template <far::bidirectional_iterative<C> I>
-    [[nodiscard]] auto inline generate(I first, I last) const
-        -> far::generator<M, C, I>
+    [[nodiscard]] auto inline generate(I first, I last) const -> far::generator<M, C, I>
     {
         return far::generator<M, C, I>(rule, std::move(first), std::move(last));
     }
 
 public:
-    template <far::bidirectional_sequence<C> R>
-    [[nodiscard]] auto inline iterate(R & container) const
+    template <far::bidirectional_sequence<C> R> [[nodiscard]] auto inline iterate(R & container) const
     {
         using namespace far;
         return iterate(aux::begin(container), aux::end(container));
     }
 
-    template <far::bidirectional_iterative<C> I>
-    [[nodiscard]] auto inline iterate(I first, I last) const
+    template <far::bidirectional_iterative<C> I> [[nodiscard]] auto inline iterate(I first, I last) const
     {
         return far::iterator_pair<far::iterator<M, C, I>>{
-            far::iterator<M, C, I>(generate(std::move(first), std::move(last))),
-            far::iterator<M, C, I>()};
+            far::iterator<M, C, I>(generate(std::move(first), std::move(last))), far::iterator<M, C, I>()};
     }
 
 public:
@@ -854,7 +801,8 @@ public:
 public:
     template <far::sequence<C> P, far::sequence<C> R>
         requires(M == mode::basic || M == mode::icase)
-    scanner(P const & pattern, R const & replace) : rule(pattern, replace)
+    scanner(P const & pattern, R const & replace)
+        : rule(pattern, replace)
     {}
 
     template <far::sequence<C> P, far::sequence<C> R>
@@ -880,9 +828,7 @@ template <
     far::mode M, std::ranges::forward_range P, std::ranges::forward_range R,
     far::char_type C = std::ranges::range_value_t<P>>
     requires(M == far::mode::regex)
-[[nodiscard]] auto inline make_scanner(
-    P const & pattern, R const & replace, bool ignore_case = false
-)
+[[nodiscard]] auto inline make_scanner(P const & pattern, R const & replace, bool ignore_case = false)
 {
     return scanner<M, C>(pattern, replace, ignore_case);
 }

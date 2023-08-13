@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include <uncat/messenger.h>
+#include <uncat/messenger/messenger.h>
 
 TEST_CASE("notify with push back", "[messenger]")
 {

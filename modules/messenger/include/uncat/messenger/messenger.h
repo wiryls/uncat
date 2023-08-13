@@ -12,27 +12,22 @@
 #include <uncat/exec/executor.h>
 #include <uncat/types/concepts.h>
 
-namespace uncat
-{
+namespace uncat {
 
 template <
     typename K,    // key    type, used as key in hash table
     typename... E> // events type, must be copyable and movable
-
 class messenger
 {
 public:
     using name_t                          = K;
     template <typename T> using handler_t = std::function<void(T const &)>;
-    template <typename T>
-    using group_t = std::unordered_map<name_t, handler_t<T>>;
+    template <typename T> using group_t   = std::unordered_map<name_t, handler_t<T>>;
 
 public:
-    template <types::oneof<E...> T>
-    auto add_handler(name_t name, handler_t<T> handler) -> messenger &;
+    template <types::oneof<E...> T> auto add_handler(name_t name, handler_t<T> handler) -> messenger &;
 
-    template <types::oneof<E...> T>
-    auto remove_handler(name_t name) -> messenger &;
+    template <types::oneof<E...> T> auto remove_handler(name_t name) -> messenger &;
 
     template <typename T>
         requires types::oneof<std::remove_cvref_t<T>, E...>
@@ -42,13 +37,8 @@ public:
     auto wait() -> void;
 
 private:
-    template <typename T>
-    auto add_handler_unsafe(name_t const & name, handler_t<T> const & handler)
-        -> void;
-
-    template <typename T>
-    auto remove_handler_unsafe(name_t const & name) -> void;
-
+    template <typename T> auto add_handler_unsafe(name_t const & name, handler_t<T> const & handler) -> void;
+    template <typename T> auto remove_handler_unsafe(name_t const & name) -> void;
     template <typename T> auto send_unsafe(T const & event) -> void;
 
 private:
@@ -58,8 +48,7 @@ private:
 
 template <typename K, typename... E>
 template <types::oneof<E...> T>
-inline auto messenger<K, E...>::add_handler(name_t name, handler_t<T> func)
-    -> messenger &
+inline auto messenger<K, E...>::add_handler(name_t name, handler_t<T> func) -> messenger &
 {
     todo([this, name = std::move(name), func = std::move(func)]
          { add_handler_unsafe<T>(std::move(name), std::move(func)); });
@@ -70,8 +59,7 @@ template <typename K, typename... E>
 template <types::oneof<E...> T>
 inline auto messenger<K, E...>::remove_handler(name_t name) -> messenger &
 {
-    todo([this, name = std::move(name)]
-         { remove_handler_unsafe<T>(std::move(name)); });
+    todo([this, name = std::move(name)] { remove_handler_unsafe<T>(std::move(name)); });
     return *this;
 }
 
@@ -80,13 +68,11 @@ template <typename T>
     requires types::oneof<std::remove_cvref_t<T>, E...>
 inline auto messenger<K, E...>::send(T && event) -> messenger &
 {
-    todo([this, event = std::move(event)]
-         { send_unsafe<std::remove_cvref_t<T>>(event); });
+    todo([this, event = std::move(event)] { send_unsafe<std::remove_cvref_t<T>>(event); });
     return *this;
 }
 
-template <typename K, typename... E>
-inline auto messenger<K, E...>::wait() -> void
+template <typename K, typename... E> inline auto messenger<K, E...>::wait() -> void
 {
     auto sign = std::make_shared<std::promise<void>>();
     auto wait = sign->get_future();
@@ -98,9 +84,7 @@ inline auto messenger<K, E...>::wait() -> void
 
 template <typename K, typename... E>
 template <typename T>
-inline auto messenger<K, E...>::add_handler_unsafe(
-    name_t const & name, handler_t<T> const & func
-) -> void
+inline auto messenger<K, E...>::add_handler_unsafe(name_t const & name, handler_t<T> const & func) -> void
 {
     auto & group = std::get<group_t<T>>(gorups);
     group[name]  = func;
@@ -108,8 +92,7 @@ inline auto messenger<K, E...>::add_handler_unsafe(
 
 template <typename K, typename... E>
 template <typename T>
-inline auto messenger<K, E...>::remove_handler_unsafe(name_t const & name)
-    -> void
+inline auto messenger<K, E...>::remove_handler_unsafe(name_t const & name) -> void
 {
     auto & group = std::get<group_t<T>>(gorups);
     auto   iter  = group.find(name);
@@ -126,4 +109,5 @@ inline auto messenger<K, E...>::send_unsafe(T const & event) -> void
     for (auto & pair : std::get<group_t<T>>(gorups))
         pair.second(event);
 }
+
 } // namespace uncat

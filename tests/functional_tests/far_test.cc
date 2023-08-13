@@ -41,8 +41,7 @@ TEST_CASE("constructor, trait, deduction guide", "[far]")
     }
     SECTION("std::wstring")
     {
-        static_assert(uncat::far::bidirectional_sequence<
-                      std::wstring, wchar_t>);
+        static_assert(uncat::far::bidirectional_sequence<std::wstring, wchar_t>);
         auto w = std::wstring();
         auto f = make_scanner<scan_mode::regex>(w, w);
         REQUIRE(f == true);
@@ -110,10 +109,8 @@ TEST_CASE("a sample lazy loop", "[far]")
         auto const & example = R"(log(😅) = 💧 log(😄))";
 
         auto cases = std::make_tuple(
-            make_scanner<scan_mode::basic>(pattern, replace),
-            make_scanner<scan_mode::icase>(pattern, replace),
-            make_scanner<scan_mode::regex>(pattern, replace),
-            make_scanner<scan_mode::regex>(pattern, replace, true)
+            make_scanner<scan_mode::basic>(pattern, replace), make_scanner<scan_mode::icase>(pattern, replace),
+            make_scanner<scan_mode::regex>(pattern, replace), make_scanner<scan_mode::regex>(pattern, replace, true)
         );
 
         auto tests = [&](auto const & f)
@@ -187,15 +184,12 @@ TEST_CASE("a sample lazy loop", "[far]")
 TEST_CASE("iterator", "[far]")
 {
     auto constexpr make_matcher =
-        []<uncat::far::char_type C>(
-            std::vector<std::pair<operation, std::basic_string<C>>> && vec
-        )
+        []<uncat::far::char_type C>(std::vector<std::pair<operation, std::basic_string<C>>> && vec)
     {
         auto head = vec.begin();
         auto tail = vec.end();
         return [head = head, tail = tail,
-                vec = std::move(vec)]<uncat::far::bidirectional_iterative<C> I>(
-                   uncat::far::change<C, I> const & var
+                vec = std::move(vec)]<uncat::far::bidirectional_iterative<C> I>(uncat::far::change<C, I> const & var
                ) mutable
         {
             if (head == tail)
@@ -212,8 +206,7 @@ TEST_CASE("iterator", "[far]")
                 {
                     using that = std::remove_cvref_t<decltype(rhs)>;
                     return std::equal(
-                        std::ranges::begin(lhs), std::ranges::end(lhs),
-                        std::ranges::begin(rhs), std::ranges::end(rhs)
+                        std::ranges::begin(lhs), std::ranges::end(lhs), std::ranges::begin(rhs), std::ranges::end(rhs)
                     );
                 },
                 var
@@ -224,10 +217,8 @@ TEST_CASE("iterator", "[far]")
     auto constexpr make_cases = [](auto const & pattern, auto const & replace)
     {
         return std::make_tuple(
-            make_scanner<scan_mode::basic>(pattern, replace),
-            make_scanner<scan_mode::icase>(pattern, replace),
-            make_scanner<scan_mode::regex>(pattern, replace),
-            make_scanner<scan_mode::regex>(pattern, replace, true)
+            make_scanner<scan_mode::basic>(pattern, replace), make_scanner<scan_mode::icase>(pattern, replace),
+            make_scanner<scan_mode::regex>(pattern, replace), make_scanner<scan_mode::regex>(pattern, replace, true)
         );
     };
 
@@ -273,8 +264,7 @@ TEST_CASE("iterator", "[far]")
                                "为当下奋斗者，不可使其淹没于尘埃。"
                                "为未来奠基者，不可使其从宽而入窄。"
                                "悲兮叹兮，若善者不得善终，恶者可更恶乎？";
-        auto const & output =
-            "为众人抱薪者，为苍生治水者，为当下奋斗者，为未来奠基者，得善终";
+        auto const & output = "为众人抱薪者，为苍生治水者，为当下奋斗者，为未来奠基者，得善终";
 
         auto f = make_scanner<scan_mode::regex>(pattern, replace);
         auto m = make_matcher(std::vector<std::pair<operation, std::string>>{

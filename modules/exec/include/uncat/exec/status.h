@@ -1,10 +1,7 @@
 #pragma once
 #include <memory>
 
-namespace uncat
-{
-namespace exec
-{
+namespace uncat { namespace exec {
 
 struct progress;
 
@@ -75,5 +72,4 @@ private:
     std::shared_ptr<progress> data;
 };
 
-} // namespace exec
-} // namespace uncat
+}} // namespace uncat::exec

@@ -50,10 +50,7 @@ TEST_CASE("executor(1) is strictly ordered", "[exec]")
                 using bier = std::back_insert_iterator<ctyp>;
                 for (auto i = std::size_t(); i < m; ++i)
                 {
-                    ex(std::bind(
-                        std::copy<iter, bier>, xs.begin(), xs.end(),
-                        std::back_inserter(v)
-                    ));
+                    ex(std::bind(std::copy<iter, bier>, xs.begin(), xs.end(), std::back_inserter(v)));
                 }
             }
         }

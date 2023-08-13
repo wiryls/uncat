@@ -4,14 +4,14 @@
 #include <sstream>
 
 #include <uncat/far/far.h>
-#include <uncat/rand/fill.h>
+#include <uncat/generate/fill.h>
 
 using uncat::far::operation, uncat::make_scanner, uncat::scan_mode;
 
 TEST_CASE(R"(regex "[a-z]" to "_")", "[far]")
 {
     auto input = std::string(512, '\0');
-    uncat::rand::fill_with(
+    uncat::generate::fill_with(
         input, "abcdefghijklmnopqrstuvwxyz"
                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                "0123456789"
@@ -70,9 +70,7 @@ TEST_CASE(R"(regex "[a-z]" to "_")", "[far]")
 
     BENCHMARK(R"(far::apply)")
     {
-        auto const rule = uncat::far::rule<uncat::far::mode::regex, char>(
-            pattern, replace, false
-        );
+        auto const rule = uncat::far::rule<uncat::far::mode::regex, char>(pattern, replace, false);
 
         auto head = input.begin();
         auto tail = input.end();
@@ -81,11 +79,8 @@ TEST_CASE(R"(regex "[a-z]" to "_")", "[far]")
         auto i = std::ostreambuf_iterator(o);
 
         uncat::far::apply(
-            rule,
-            [&](auto left, auto right) { o << std::string_view(left, right); },
-            [](auto, auto) {},
-            [&](auto left, auto right) { o << std::string_view(left, right); },
-            head, tail
+            rule, [&](auto left, auto right) { o << std::string_view(left, right); }, [](auto, auto) {},
+            [&](auto left, auto right) { o << std::string_view(left, right); }, head, tail
         );
 
         return o.str();
@@ -95,7 +90,7 @@ TEST_CASE(R"(regex "[a-z]" to "_")", "[far]")
 TEST_CASE(R"(plain text "0011" to "1100")", "[far]")
 {
     auto input = std::string(1024, '\0');
-    uncat::rand::fill_with(input, "01");
+    uncat::generate::fill_with(input, "01");
 
     auto const & pattern = "0011";
     auto const & replace = "1100";
@@ -118,8 +113,7 @@ TEST_CASE(R"(plain text "0011" to "1100")", "[far]")
             if (i == std::string::npos)
                 break;
 
-            o << std::string_view(std::next(s, head), std::next(s, i))
-              << replace;
+            o << std::string_view(std::next(s, head), std::next(s, i)) << replace;
             head = i + 1;
         }
 
@@ -161,8 +155,7 @@ TEST_CASE(R"(plain text "0011" to "1100")", "[far]")
 
     BENCHMARK(R"(far::apply)")
     {
-        auto const rule =
-            uncat::far::rule<uncat::far::mode::basic, char>(pattern, replace);
+        auto const rule = uncat::far::rule<uncat::far::mode::basic, char>(pattern, replace);
 
         auto head = input.begin();
         auto tail = input.end();
@@ -171,11 +164,8 @@ TEST_CASE(R"(plain text "0011" to "1100")", "[far]")
         auto i = std::ostreambuf_iterator(o);
 
         uncat::far::apply(
-            rule,
-            [&](auto left, auto right) { o << std::string_view(left, right); },
-            [](auto, auto) {},
-            [&](auto left, auto right) { o << std::string_view(left, right); },
-            head, tail
+            rule, [&](auto left, auto right) { o << std::string_view(left, right); }, [](auto, auto) {},
+            [&](auto left, auto right) { o << std::string_view(left, right); }, head, tail
         );
 
         return o.str();

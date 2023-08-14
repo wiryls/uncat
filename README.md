@@ -36,11 +36,11 @@ Project layout shows as follows:
 └─third_party // Dependent libraries (such as Cache2)
 ```
 
-Libraries are placed at `modules`, tests are placed at `tests` folder. e.g. the header-only library `far`:
+Libraries are placed at `modules`, test files are placed at `tests` folder. e.g. the header-only library `far`:
 
-- Source files: [`modules\far\include\uncat\far\far.h`](modules\far\include\uncat\far\far.h)
-- Benchmark tests: [`tests\benchmark_tests\far_test.cc`](tests\benchmark_tests\far_test.cc)
-- Functional tests: [`tests\functional_tests\far_test.cc`](tests\functional_tests\far_test.cc)
+- Source files: [`modules/far/include/uncat/far/far.h`](modules/far/include/uncat/far/far.h)
+- Benchmark tests: [`tests/benchmark_tests/far_test.cc`](tests/benchmark_tests/far_test.cc)
+- Functional tests: [`tests/functional_tests/far_test.cc`](tests/functional_tests/far_test.cc)
 
 ## Usage
 

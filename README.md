@@ -44,7 +44,23 @@ Libraries are placed at `modules`, test files are placed at `tests` folder. e.g.
 
 ## Usage
 
-### Import Project via CMake `FetchContent`
+### Build this Project
+
+1. Create a `build` directory for out-of-source building.
+    ```shell
+    mkdir build
+    cd build
+    ```
+2. Configure it.
+    ```shell
+    cmake ..
+    ```
+3. Build all (in debug mode).
+    ```shell
+    cmake --build . --config Debug --target ALL_BUILD -j 18
+    ```
+
+### Import Project in Another Project via CMake `FetchContent`
 
 Dependency:
 

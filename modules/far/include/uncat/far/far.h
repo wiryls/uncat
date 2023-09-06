@@ -63,7 +63,7 @@ concept bidirectional_sequence = std::ranges::range<S> && bidirectional_iterativ
 namespace uncat { namespace far { namespace aux {
 namespace detail {
 
-//// rewite std::ranges::end("string literal") to that - 1
+//// rewrite std::ranges::end("string literal") to that - 1
 struct end
 {
 private:
@@ -216,7 +216,7 @@ struct iterator_pair
         return this->second;
     }
 
-    // Not sure why msvc forbids me using "requires" at the the end of
+    // Not sure why MSVC forbids me using "requires" at the the end of
     // "operator auto()" after an update. It forces me to replace "requires"
     // with CRTP.
 };
@@ -765,7 +765,7 @@ auto apply(rule<M, C> const & rule, R retain, O remove, N insert, I first, I las
 }} // namespace uncat::far
 
 namespace uncat {
-//// export to outter namespace
+//// export to external namespace
 
 using scan_mode = far::mode;
 

@@ -1,4 +1,4 @@
-# use dir name as target name
+# use directory name as target name
 get_filename_component(name ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 string(REPLACE " " "_" name ${name})
 string(TOLOWER ${name} name)

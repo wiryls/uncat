@@ -252,7 +252,7 @@ TEST_CASE("iterator", "[far]")
 
         std::apply([=](auto &&... f) { (tests(f), ...); }, cases);
     }
-    SECTION("unicode with regex")
+    SECTION("Unicode with regex")
     {
         // Note: '?' makes ".+" non-greedy
         // https://stackoverflow.com/a/2824314

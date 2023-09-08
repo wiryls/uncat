@@ -5,7 +5,7 @@ string(TOLOWER ${name} name)
 
 # sources list
 set(source main.cc)
-set(header quick_sort.h)
+set(header sort.h)
 
 # config executable
 add_executable       (${name} ${source} ${header})

@@ -1,19 +1,20 @@
-#include "quick_sort.h"
+#include "sort.h"
 #include <iostream>
 
-template <typename I, I... xs> void output(std::integer_sequence<I, xs...>)
+template <typename O, typename I, I... xs> auto inline static operator<<(O & o, std::integer_sequence<I, xs...>) -> O &
 {
-    (std::cout << ... << xs) << std::endl;
+    return (o << ... << xs);
 }
 
-template <typename I, I x, I y, I... xs> void output(std::integer_sequence<I, x, y, xs...>)
+template <typename O, typename I, I x, I y, I... xs>
+auto inline static operator<<(O & o, std::integer_sequence<I, x, y, xs...>) -> O &
 {
-    std::cout << x << ',';
-    output(std::integer_sequence<I, y, xs...>());
+    return o << x << ',' << ' ' << std::integer_sequence<I, y, xs...>();
 }
 
 int main()
 {
-    output(quicksort_t<int, 2, 1, 4, 2, 3, 4>());
+    std::cout << mergesort_t<int, 1, 4, 2, 8, 5, 7>() << std::endl;
+    std::cout << quicksort_t<int, 1, 4, 2, 8, 5, 7>() << std::endl;
     return 0;
 }

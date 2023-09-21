@@ -6,7 +6,7 @@ My C++ playground:
 - Unit tests with [Catch2](https://github.com/catchorg/Catch2).
 - Play with template-meta programming!
 
-With the help of template-meta programming, we could even perform level-order traversal of a binary tree at compile time:
+With the help of C++ template-meta programming, we can even perform [level-order traversal](modules/cta/include/uncat/cta/binary_tree.h) at compile time:
 
 ```cpp
 using uncat::operator<<;
@@ -36,8 +36,11 @@ Project layout shows as follows:
 │
 ├─modules        // All libraries are placed here.
 │  │
-│  ├─far         // Library folder.
+│  ├─cta         // Library folder.
 │  │  └─include  // A header only library, thus no "src" folder.
+│  │
+│  ├─far
+│  │  └─include
 │  │
 │  ├─fsm
 │  │  └─include

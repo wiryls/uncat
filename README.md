@@ -4,27 +4,47 @@ My C++ playground:
 
 - Project organized by modern CMake.
 - Unit tests with [Catch2](https://github.com/catchorg/Catch2).
-- Play with template-meta programming.
+- Play with template-meta programming!
+
+With the help of template-meta programming, we could even perform level-order traversal of a binary tree at compile time:
+
+```cpp
+using uncat::operator<<;
+using uncat::binary_tree::node;
+using tree = node<int, 0, node<int, 1, node<int, 3>>, node<int, 2, void, node<int, 4, node<int, 5>>>>;
+//     0
+//    / \
+//   1   2
+//  /     \
+// 3       4
+//        /
+//       5
+
+std::cout << uncat::pre_order_traversal_t<tree>() << '\n'
+            << uncat::in_order_traversal_t<tree>() << '\n'
+            << uncat::post_order_traversal_t<tree>() << '\n'
+            << uncat::level_order_traversal_t<tree>() << std::endl;
+```
 
 ## Project Layout
 
 Project layout shows as follows:
 
 ```text
-├─examples // Some example code.
-│  └─todo
+├─examples       // Some example code.
+│  └─hello_world // Source files of an executable.
 │
-├─modules // All libraries are placed here.
+├─modules        // All libraries are placed here.
 │  │
-│  ├─exec       // Library folder.
-│  │  ├─include // Exported header files.
-│  │  └─src     // Some cpp source files and header files.
-│  │
-│  ├─far
-│  │  └─include // A header only library, no "src" folder.
+│  ├─far         // Library folder.
+│  │  └─include  // A header only library, thus no "src" folder.
 │  │
 │  ├─fsm
 │  │  └─include
+│  │
+│  ├─messenger
+│  │  ├─include  // Exported header files.
+│  │  └─src      // Some cpp source files and header files.
 │  │
 │  └─types
 │      └─include
@@ -36,7 +56,9 @@ Project layout shows as follows:
 └─third_party // Dependent libraries (such as Cache2)
 ```
 
-Libraries are placed at `modules`, test files are placed at `tests` folder. e.g. the header-only library `far`:
+Libraries are placed at `modules`, test files are placed at `tests` folder.
+
+e.g. the header-only library `far`:
 
 - Source files: [`modules/far/include/uncat/far/far.h`](modules/far/include/uncat/far/far.h)
 - Benchmark tests: [`tests/benchmark_tests/far_test.cc`](tests/benchmark_tests/far_test.cc)

@@ -1,4 +1,4 @@
-#include <uncat/exec/executor.h>
+#include <uncat/messenger/executor.h>
 
 uncat::exec::executor::executor(std::size_t size)
     : running(size > 0)

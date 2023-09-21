@@ -8,4 +8,5 @@ add_compile_options(
     "$<$<AND:$<CONFIG:RELEASE>,$<CXX_COMPILER_ID:MSVC>>:/O2>")
 
 # add all examples
-add_subdirectory(sort)
+add_subdirectory(compile_time_algorithm)
+add_subdirectory(hello_world)

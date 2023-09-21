@@ -5,7 +5,6 @@ string(TOLOWER ${name} name)
 
 # source lists
 set(sources
-    exec_test.cc
     far_test.cc
     fsm_test.cc
     messenger_test.cc
@@ -17,7 +16,6 @@ set_target_properties(${name} PROPERTIES FOLDER "${PROJECT_NAME}/tests")
 set_target_properties(${name} PROPERTIES CXX_STANDARD 23)
 target_link_libraries(${name} PRIVATE
     Catch2::Catch2WithMain
-    uncat::exec
     uncat::far
     uncat::fsm
     uncat::messenger

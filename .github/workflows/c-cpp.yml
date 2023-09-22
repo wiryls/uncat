@@ -16,5 +16,5 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake ..
+        cmake -DUNCAT_BUILD_TESTS=ON -DUNCAT_BUILD_EXAMPLES=ON ..
         cmake --build . --config Debug -j 4

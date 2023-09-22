@@ -78,11 +78,11 @@ e.g. the header-only library `far`:
     ```
 2. Configure it.
     ```shell
-    cmake ..
+    cmake -DUNCAT_BUILD_TESTS=ON -DUNCAT_BUILD_EXAMPLES=ON ..
     ```
 3. Build all (in debug mode).
     ```shell
-    cmake --build . --config Debug --target ALL_BUILD -j 18
+    cmake --build . --config Debug -j 18
     ```
 
 ### Import Project in Another Project via CMake `FetchContent`

@@ -18,20 +18,21 @@ enum struct order
     pre,
     in,
     post,
+    level,
 };
 
-template <typename I> struct pre_in_post_order
+template <typename I> struct any_order
 {
 private:
     template <I... xs> using list = aux::list<I, xs...>;
 
 public:
-    template <order, typename N> struct traversal
+    template <order, typename... N> struct traversal
     {
         using type = list<>;
     };
 
-    template <order o, typename N> using traversal_t = typename traversal<o, N>::type;
+    template <order o, typename... N> using traversal_t = typename traversal<o, N...>::type;
 
     template <I x, typename L, typename R> struct traversal<order::pre, node<I, x, L, R>>
     {
@@ -47,18 +48,29 @@ public:
     {
         using type = aux::join_t<traversal_t<order::post, L>, traversal_t<order::post, R>, list<x>>;
     };
+
+    template <typename... N> struct traversal<order::level, void, N...>
+    {
+        using type = traversal_t<order::level, N...>;
+    };
+
+    template <typename... N, I value, typename L, typename R> struct traversal<order::level, node<I, value, L, R>, N...>
+    {
+        using type = traversal_t<order::level, N..., L, R>::template push_front<value>;
+    };
 };
 
 }}} // namespace uncat::binary_tree::aux
 
 namespace uncat { namespace binary_tree {
 
+// Export
 template <typename T> struct pre_order
 {};
 
 template <typename I, I x, typename L, typename R> struct pre_order<node<I, x, L, R>>
 {
-    using type = aux::pre_in_post_order<I>::template traversal_t<aux::order::pre, node<I, x, L, R>>;
+    using type = aux::any_order<I>::template traversal_t<aux::order::pre, node<I, x, L, R>>;
 };
 
 template <typename T> struct in_order
@@ -66,7 +78,7 @@ template <typename T> struct in_order
 
 template <typename I, I x, typename L, typename R> struct in_order<node<I, x, L, R>>
 {
-    using type = aux::pre_in_post_order<I>::template traversal_t<aux::order::in, node<I, x, L, R>>;
+    using type = aux::any_order<I>::template traversal_t<aux::order::in, node<I, x, L, R>>;
 };
 
 template <typename T> struct post_order
@@ -74,7 +86,7 @@ template <typename T> struct post_order
 
 template <typename I, I x, typename L, typename R> struct post_order<node<I, x, L, R>>
 {
-    using type = aux::pre_in_post_order<I>::template traversal_t<aux::order::post, node<I, x, L, R>>;
+    using type = aux::any_order<I>::template traversal_t<aux::order::post, node<I, x, L, R>>;
 };
 
 template <typename N> struct level_order
@@ -82,26 +94,7 @@ template <typename N> struct level_order
 
 template <typename I, I x, typename L, typename R> struct level_order<node<I, x, L, R>>
 {
-private:
-    template <I... xs> using list = cta::aux::list<I, xs...>;
-
-    template <typename... N> struct traversal
-    {
-        using type = list<>;
-    };
-
-    template <typename... N> struct traversal<void, N...>
-    {
-        using type = typename traversal<N...>::type;
-    };
-
-    template <typename... N, I value, typename L, typename R> struct traversal<node<I, value, L, R>, N...>
-    {
-        using type = typename traversal<N..., L, R>::type::template push_front<value>;
-    };
-
-public:
-    using type = typename traversal<node<I, x, L, R>>::type::to_integer_sequence;
+    using type = aux::any_order<I>::template traversal_t<aux::order::level, node<I, x, L, R>>;
 };
 
 }} // namespace uncat::binary_tree

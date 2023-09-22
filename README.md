@@ -52,14 +52,14 @@ Project layout shows as follows:
 │  └─types
 │      └─include
 │
-├─tests  // Tests files (base on Catch2)
+├─tests          // Tests files (base on Catch2)
 │  ├─benchmark_tests
 │  └─functional_tests
 │
-└─third_party // Dependent libraries (such as Cache2)
+└─third_party    // Dependent libraries (such as Cache2)
 ```
 
-Libraries are placed at `modules`, test files are placed at `tests` folder.
+Executables are placed in `examples` folder. And libraries are in `modules`, test files in `tests`.
 
 e.g. the header-only library `far`:
 

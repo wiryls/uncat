@@ -76,7 +76,6 @@ TEST_CASE(R"(regex "[a-z]" to "_")", "[far]")
         auto tail = input.end();
 
         auto o = std::ostringstream();
-        auto i = std::ostreambuf_iterator(o);
 
         uncat::far::apply(
             rule, [&](auto left, auto right) { o << std::string_view(left, right); }, [](auto, auto) {},
@@ -161,7 +160,6 @@ TEST_CASE(R"(plain text "0011" to "1100")", "[far]")
         auto tail = input.end();
 
         auto o = std::ostringstream();
-        auto i = std::ostreambuf_iterator(o);
 
         uncat::far::apply(
             rule, [&](auto left, auto right) { o << std::string_view(left, right); }, [](auto, auto) {},

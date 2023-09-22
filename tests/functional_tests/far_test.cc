@@ -14,7 +14,7 @@ TEST_CASE("helpers", "[far]")
     {
         REQUIRE(&operation::retain == 0);
         auto i = operation::retain;
-        REQUIRE(&i != 0);
+        REQUIRE(reinterpret_cast<std::intmax_t>(&i) != 0);
     }
 }
 

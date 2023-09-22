@@ -70,15 +70,15 @@ private:
     template <std::ranges::range R> struct zero_suffixed : std::false_type
     {};
 
-    template <typename C, std::size_t N>
-    requires(N > 0) && requires(C const (&c)[N]) {
+    template <typename C, std::size_t X>
+    requires(X > 0) && requires(C const (&c)[X]) {
         {
-            c + N
+            c + X
         } -> std::contiguous_iterator;
     }
-    struct zero_suffixed<C (&)[N]> : std::true_type
+    struct zero_suffixed<C (&)[X]> : std::true_type
     {
-        static constexpr std::ptrdiff_t N = N;
+        static constexpr std::ptrdiff_t N = X;
     };
 
 public:
@@ -264,7 +264,7 @@ template <char_type C> struct rule<mode::regex, C>
             auto constexpr basic = std::regex_constants::ECMAScript;
             auto constexpr icase = std::regex_constants::icase;
 
-            auto option   = static_cast<option_type>(basic | (ignore_case ? icase : 0));
+            auto option   = static_cast<option_type>(ignore_case ? basic | icase : basic);
             this->pattern = std::basic_regex<C>(aux::begin(pattern), aux::end(pattern), option);
         }
         catch (std::regex_error const & ex)
@@ -358,9 +358,9 @@ public:
             {
                 using tag = std::iterator_traits<I>::iterator_category;
                 if constexpr (std::is_base_of_v<std::random_access_iterator_tag, tag>)
-                    curr = (rule.chooser.first)(head, tail);
+                    curr = (core.chooser.first)(head, tail);
                 else
-                    curr = (rule.chooser.second)(head, tail);
+                    curr = (core.chooser.second)(head, tail);
 
                 if (curr.first == curr.second)
                     break;
@@ -382,10 +382,10 @@ public:
                 [[fallthrough]];
             case generator_status::after_remove:
 
-                if (!rule.replace.empty())
+                if (!core.replace.empty())
                 {
                     stat = generator_status::after_insert;
-                    return insert<C>(rule.replace.begin(), rule.replace.end());
+                    return insert<C>(core.replace.begin(), core.replace.end());
                 }
 
                 [[fallthrough]];
@@ -413,25 +413,25 @@ public:
 
 public:
     generator(rule<M, C> const & rule, I first, I last) noexcept
-        : rule(rule)
+        : core(rule)
         , head(first)
         , tail(last)
         , curr{}
         , stat{
               first == last                  ? generator_status::stopped
-              : rule.pattern == rule.replace ? generator_status::before_stopped
+              : core.pattern == core.replace ? generator_status::before_stopped
                                              : generator_status::startup}
     {
         /**/ if (first == last)
             stat = generator_status::stopped;
-        else if (rule.pattern == rule.replace)
+        else if (core.pattern == core.replace)
             stat = generator_status::before_stopped;
     }
 
 private:
     using iterator = I;
 
-    rule<M, C> const &            rule;
+    rule<M, C> const &            core;
     iterator                      head;
     iterator                      tail;
     std::pair<iterator, iterator> curr;
@@ -453,7 +453,7 @@ public:
                     continue;
 
                 buff.clear();
-                head->format(std::back_inserter(buff), rule.replace);
+                head->format(std::back_inserter(buff), core.replace);
 
                 {
                     auto constexpr e = std::execution::unseq;
@@ -508,7 +508,7 @@ public:
 
 public:
     generator(rule<mode::regex, C> const & rule, I first, I last)
-        : rule(rule)
+        : core(rule)
         , curr(first)
         , last(last)
         , head()
@@ -516,13 +516,13 @@ public:
         if (first == last)
             stat = generator_status::stopped;
         else
-            head = std::regex_iterator<I>(first, last, rule.pattern);
+            head = std::regex_iterator<I>(first, last, core.pattern);
     }
 
 private:
     using iterator = I;
 
-    rule<mode::regex, C> const &  rule;
+    rule<mode::regex, C> const &  core;
     iterator                      curr;
     iterator                      last;
     std::regex_iterator<iterator> head;

@@ -5,7 +5,7 @@ string(TOLOWER ${name} name)
 
 # source lists
 set(sources
-    far_test.cc
+    "$<$<NOT:$<CXX_COMPILER_ID:GNU>>:far_test.cc>"
     fsm_test.cc
     messenger_test.cc
     types_test.cc)

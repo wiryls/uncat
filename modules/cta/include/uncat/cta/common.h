@@ -18,7 +18,7 @@ auto inline static operator<<(O & oss, T<I, x, y, xs...>) -> O &
 }
 
 // Comparator \ less \ greater.
-template <typename I, template <typename I, I l, I r> class C> struct comparator
+template <typename I, template <typename X, X l, X r> class C> struct comparator
 {
     template <I l, I r> struct type
     {

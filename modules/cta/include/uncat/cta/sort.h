@@ -108,10 +108,10 @@ private:
 
     template <I... xs> struct sort<list<xs...>>
     {
-        using split = split<sizeof...(xs) / 2, list<xs...>>;
-        using left  = typename sort<typename split::left>::type;
-        using right = typename sort<typename split::right>::type;
-        using type  = typename merge<left, right>::type;
+        using branch = split<sizeof...(xs) / 2, list<xs...>>;
+        using left   = typename sort<typename branch::left>::type;
+        using right  = typename sort<typename branch::right>::type;
+        using type   = typename merge<left, right>::type;
     };
 
     template <I x, I y> struct sort<list<x, y>>
@@ -139,19 +139,19 @@ namespace uncat {
 template <typename T, template <typename I, I, I> class C = less> struct quick_sort
 {};
 
-template <template <typename X, X...> class T, typename I, I... xs, template <typename I, I, I> class C>
+template <template <typename X, X...> class T, typename I, I... xs, template <typename X, X, X> class C>
 struct quick_sort<T<I, xs...>, C>
 {
-    using type = typename sequence::quick_sort<I, typename comparator<I, C>::template type>::template numbers<xs...>;
+    using type = typename sequence::quick_sort<I, comparator<I, C>::template type>::template numbers<xs...>;
 };
 
 template <typename T, template <typename I, I, I> class C = less> struct merge_sort
 {};
 
-template <template <typename X, X...> class T, typename I, I... xs, template <typename I, I, I> class C>
+template <template <typename X, X...> class T, typename I, I... xs, template <typename X, X, X> class C>
 struct merge_sort<T<I, xs...>, C>
 {
-    using type = typename sequence::merge_sort<I, typename comparator<I, C>::template type>::template numbers<xs...>;
+    using type = typename sequence::merge_sort<I, comparator<I, C>::template type>::template numbers<xs...>;
 };
 
 template <typename List, template <typename I, I, I> class Comparator = less>

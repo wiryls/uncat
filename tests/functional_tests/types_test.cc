@@ -39,10 +39,10 @@ TEST_CASE("find", "[types]")
 {
     using uncat::types::pack, uncat::types::same, uncat::types::find_t;
 
-    static_assert(sizeof find_t<same<int>::type, int, void, double>);
-    static_assert(sizeof find_t<same<int>::type, void, int, double>);
-    static_assert(sizeof find_t<same<int>::type, char, double, int>);
-    static_assert(sizeof find_t<same<int>::type, int>);
+    static_assert(std::same_as<int, find_t<same<int>::type, int, void, double>>);
+    static_assert(std::same_as<int, find_t<same<int>::type, void, int, double>>);
+    static_assert(std::same_as<int, find_t<same<int>::type, char, double, int>>);
+    static_assert(std::same_as<int, find_t<same<int>::type, int>>);
 }
 
 TEST_CASE("is_subset", "[types]")

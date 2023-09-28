@@ -17,18 +17,20 @@ int main()
     using uncat::operator<<;
     using uncat::binary_tree::node;
     using tree = node<int, 0, node<int, 1, node<int, 3>>, node<int, 2, void, node<int, 4, node<int, 5>>>>;
-    //     0
-    //    / \
-    //   1   2
-    //  /     \
-    // 3       4
-    //        /
-    //       5
+    /*     0
+     *    / \
+     *   1   2
+     *  /     \
+     * 3       4
+     *        /
+     *       5
+     */
 
     std::cout << uncat::pre_order_traversal_t<tree>() << '\n'
               << uncat::in_order_traversal_t<tree>() << '\n'
               << uncat::post_order_traversal_t<tree>() << '\n'
               << uncat::level_order_traversal_t<tree>() << std::endl;
+    // Output:
     // 0, 1, 3, 2, 4, 5
     // 3, 1, 0, 2, 5, 4
     // 3, 1, 5, 4, 2, 0

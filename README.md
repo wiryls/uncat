@@ -4,26 +4,37 @@ My C++ playground:
 
 - Project organized by modern CMake.
 - Unit tests with [Catch2](https://github.com/catchorg/Catch2).
-- Play with template-meta programming!
+- Play with **template-meta programming**!
 
 With the help of C++ template-meta programming, we can even perform [level-order traversal](modules/cta/include/uncat/cta/binary_tree.h) at compile time:
 
 ```cpp
-using uncat::operator<<;
-using uncat::binary_tree::node;
-using tree = node<int, 0, node<int, 1, node<int, 3>>, node<int, 2, void, node<int, 4, node<int, 5>>>>;
-//     0
-//    / \
-//   1   2
-//  /     \
-// 3       4
-//        /
-//       5
+#include <iostream>
+#include <uncat/cta/binary_tree.h>
 
-std::cout << uncat::pre_order_traversal_t<tree>() << '\n'
-            << uncat::in_order_traversal_t<tree>() << '\n'
-            << uncat::post_order_traversal_t<tree>() << '\n'
-            << uncat::level_order_traversal_t<tree>() << std::endl;
+int main()
+{
+    using uncat::operator<<;
+    using uncat::binary_tree::node;
+    using tree = node<int, 0, node<int, 1, node<int, 3>>, node<int, 2, void, node<int, 4, node<int, 5>>>>;
+    //     0
+    //    / \
+    //   1   2
+    //  /     \
+    // 3       4
+    //        /
+    //       5
+
+    std::cout << uncat::pre_order_traversal_t<tree>() << '\n'
+              << uncat::in_order_traversal_t<tree>() << '\n'
+              << uncat::post_order_traversal_t<tree>() << '\n'
+              << uncat::level_order_traversal_t<tree>() << std::endl;
+    // 0, 1, 3, 2, 4, 5
+    // 3, 1, 0, 2, 5, 4
+    // 3, 1, 5, 4, 2, 0
+    // 0, 1, 2, 3, 4, 5
+    return 0;
+}
 ```
 
 ## Project Layout

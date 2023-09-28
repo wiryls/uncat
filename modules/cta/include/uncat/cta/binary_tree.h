@@ -104,9 +104,9 @@ namespace uncat {
 template <typename I, I value, typename Left = void, typename Right = void>
 using binary_tree_node = typename binary_tree::node<I, value, Left, Right>;
 
-template <typename Node> using pre_order_traversal_t   = typename binary_tree::post_order<Node>::type;
+template <typename Node> using pre_order_traversal_t   = typename binary_tree::pre_order<Node>::type;
 template <typename Node> using in_order_traversal_t    = typename binary_tree::in_order<Node>::type;
-template <typename Node> using post_order_traversal_t  = typename binary_tree::pre_order<Node>::type;
+template <typename Node> using post_order_traversal_t  = typename binary_tree::post_order<Node>::type;
 template <typename Node> using level_order_traversal_t = typename binary_tree::level_order<Node>::type;
 
 } // namespace uncat

@@ -1,0 +1,30 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lukka/get-cmake@v3.21.2
+      - uses: cpp-linter/cpp-linter-action@v2
+        id: format
+        with:
+          style: file
+          tidy-checks: '-*' # disable for now
+
+      - name: check
+        if: steps.format.outputs.checks-failed > 0
+        run: echo "Some files failed the linting checks!" && exit 1
+
+      - name: build
+        run: |
+          mkdir build
+          cmake -S . -B build -DUNCAT_BUILD_TESTS=ON -DUNCAT_BUILD_EXAMPLES=ON -DCMAKE_CXX_CLANG_TIDY="clang-tidy" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          cmake --build build --config Debug -j 4

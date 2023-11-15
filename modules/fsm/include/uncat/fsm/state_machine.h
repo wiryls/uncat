@@ -4,7 +4,7 @@
 #include <uncat/types/concepts.h>
 #include <uncat/types/types.h>
 
-namespace uncat { namespace fsm { namespace aux {
+namespace uncat::fsm::aux {
 
 template <typename F, typename T> struct validator : std::false_type
 {};
@@ -42,9 +42,9 @@ public:
     using matches = typename collect<T...>::matches;
 };
 
-}}} // namespace uncat::fsm::aux
+} // namespace uncat::fsm::aux
 
-namespace uncat { namespace fsm {
+namespace uncat::fsm {
 
 template <typename S, typename D, typename... I> struct transition
 {};
@@ -61,16 +61,16 @@ private:
 
 public:
     template <typename S, typename X>
-    state_machine(S && state, X && action)
+    state_machine(S && initial_state, X && state_transition)
     requires types::in<S, states>;
     state_machine();
 
+    ~state_machine()                                 = default;
     state_machine(state_machine const &)             = default;
     state_machine(state_machine &&)                  = default;
     state_machine & operator=(state_machine const &) = default;
     state_machine & operator=(state_machine &&)      = default;
 
-public:
     template <typename I>
     auto accept(I && input) -> bool
     requires types::in<I, inputs>;
@@ -83,10 +83,10 @@ private:
 
 template <typename F, typename... T>
 template <typename S, typename X>
-inline state_machine<F, T...>::state_machine(S && init, X && next)
+inline state_machine<F, T...>::state_machine(S && initial_state, X && state_transition)
 requires types::in<S, states>
-    : state(std::forward<S>(init))
-    , shift(std::forward<X>(next))
+    : state(std::forward<S>(initial_state))
+    , shift(std::forward<X>(state_transition))
 {}
 
 template <typename F, typename... T>
@@ -101,7 +101,7 @@ inline auto state_machine<F, T...>::accept(I && input) -> bool
 requires types::in<I, inputs>
 {
     return std::visit(
-        [this, &input](auto & current) -> bool
+        [this, input = std::forward<I>(input)](auto & current) mutable -> bool
         {
             using state_t = std::remove_cvref_t<decltype(current)>;
             using input_t = std::remove_cvref_t<I>;
@@ -116,4 +116,4 @@ requires types::in<I, inputs>
         state
     );
 }
-}} // namespace uncat::fsm
+} // namespace uncat::fsm

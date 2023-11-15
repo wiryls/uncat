@@ -1,7 +1,13 @@
 #include <catch2/benchmark/catch_benchmark.hpp>
 #include <catch2/catch_test_macros.hpp>
 
+#include <cstddef>
+#include <iterator>
+#include <regex>
 #include <sstream>
+#include <string>
+#include <string_view>
+#include <variant>
 
 #include <uncat/far/far.h>
 #include <uncat/generate/fill.h>
@@ -27,14 +33,14 @@ TEST_CASE(R"(regex "[a-z]" to "_")", "[far]")
 
     BENCHMARK(R"(std::regex)")
     {
-        auto const r = std::regex(pattern);
+        auto const r = std::regex(static_cast<char const *>(pattern));
 
         auto head = input.begin();
         auto tail = input.end();
 
         auto o = std::ostringstream();
         auto i = std::ostreambuf_iterator(o);
-        std::regex_replace(i, head, tail, r, replace);
+        std::regex_replace(i, head, tail, r, static_cast<char const *>(replace));
         return o.str();
     };
 
@@ -46,9 +52,9 @@ TEST_CASE(R"(regex "[a-z]" to "_")", "[far]")
         for (auto s = g(); s.has_value(); s = g())
         {
             auto & v = s.value();
-            if /**/ (auto insert = std::get_if<&operation::insert>(&v))
+            if /**/ (auto * insert = std::get_if<&operation::insert>(&v))
                 o << std::string_view(*insert);
-            else if (auto retain = std::get_if<&operation::retain>(&v))
+            else if (auto * retain = std::get_if<&operation::retain>(&v))
                 o << std::string_view(*retain);
         }
         return o.str();
@@ -58,11 +64,11 @@ TEST_CASE(R"(regex "[a-z]" to "_")", "[far]")
     {
         auto o = std::ostringstream();
         auto f = make_scanner<scan_mode::regex>(pattern, replace);
-        for (auto & c : f.iterate(input))
+        for (auto const & c : f.iterate(input))
         {
-            if /**/ (auto insert = std::get_if<&operation::insert>(&c))
+            if /**/ (auto const * insert = std::get_if<&operation::insert>(&c))
                 o << std::string_view(*insert);
-            else if (auto retain = std::get_if<&operation::retain>(&c))
+            else if (auto const * retain = std::get_if<&operation::retain>(&c))
                 o << std::string_view(*retain);
         }
         return o.str();
@@ -130,9 +136,9 @@ TEST_CASE(R"(plain text "0011" to "1100")", "[far]")
         for (auto s = g(); s.has_value(); s = g())
         {
             auto & v = s.value();
-            if /**/ (auto insert = std::get_if<&operation::insert>(&v))
+            if /**/ (auto * insert = std::get_if<&operation::insert>(&v))
                 o << std::string_view(*insert);
-            else if (auto retain = std::get_if<&operation::retain>(&v))
+            else if (auto * retain = std::get_if<&operation::retain>(&v))
                 o << std::string_view(*retain);
         }
         return o.str();
@@ -142,11 +148,11 @@ TEST_CASE(R"(plain text "0011" to "1100")", "[far]")
     {
         auto o = std::ostringstream();
         auto f = make_scanner<scan_mode::basic>(pattern, replace);
-        for (auto & c : f.iterate(input))
+        for (auto const & c : f.iterate(input))
         {
-            if /**/ (auto insert = std::get_if<&operation::insert>(&c))
+            if /**/ (auto const * insert = std::get_if<&operation::insert>(&c))
                 o << std::string_view(*insert);
-            else if (auto retain = std::get_if<&operation::retain>(&c))
+            else if (auto const * retain = std::get_if<&operation::retain>(&c))
                 o << std::string_view(*retain);
         }
         return o.str();

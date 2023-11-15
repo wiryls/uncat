@@ -22,7 +22,7 @@
 #include <type_traits>
 #include <variant>
 
-namespace uncat { namespace far {
+namespace uncat::far {
 
 // char types that scanner supports.
 template <typename C>
@@ -58,9 +58,10 @@ concept forward_sequence = std::ranges::range<S> && forward_iterative<std::range
 // - used when constructing scanner.
 template <typename S, typename C>
 concept bidirectional_sequence = std::ranges::range<S> && bidirectional_iterative<std::ranges::iterator_t<S>, C>;
-}} // namespace uncat::far
 
-namespace uncat { namespace far { namespace aux {
+} // namespace uncat::far
+
+namespace uncat::far::aux {
 namespace detail {
 
 //// rewrite std::ranges::end("string literal") to that - 1
@@ -76,6 +77,7 @@ private:
             c + X
         } -> std::contiguous_iterator;
     }
+    // NOLINT(cppcoreguidelines-avoid-c-arrays)
     struct zero_suffixed<C (&)[X]> : std::true_type
     {
         static constexpr std::ptrdiff_t N = X;
@@ -99,7 +101,7 @@ public:
 inline constexpr auto begin = std::ranges::begin;
 inline constexpr auto end   = detail::end{};
 
-}}} // namespace uncat::far::aux
+} // namespace uncat::far::aux
 
 namespace uncat { namespace far {
 //// helpers
@@ -416,13 +418,13 @@ public:
         : core(rule)
         , head(first)
         , tail(last)
-        , curr{}
         , stat{
               first == last                  ? generator_status::stopped
               : core.pattern == core.replace ? generator_status::before_stopped
-                                             : generator_status::startup}
+                                             : generator_status::startup
+          }
     {
-        /**/ if (first == last)
+        if (first == last)
             stat = generator_status::stopped;
         else if (core.pattern == core.replace)
             stat = generator_status::before_stopped;
@@ -434,7 +436,7 @@ private:
     rule<M, C> const &            core;
     iterator                      head;
     iterator                      tail;
-    std::pair<iterator, iterator> curr;
+    std::pair<iterator, iterator> curr{};
     generator_status              stat;
 };
 
@@ -794,7 +796,8 @@ public:
     template <far::bidirectional_iterative<C> I> [[nodiscard]] auto inline iterate(I first, I last) const
     {
         return far::iterator_pair<far::iterator<M, C, I>>{
-            far::iterator<M, C, I>(generate(std::move(first), std::move(last))), far::iterator<M, C, I>()};
+            far::iterator<M, C, I>(generate(std::move(first), std::move(last))), far::iterator<M, C, I>()
+        };
     }
 
 public:

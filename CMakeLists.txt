@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.19)
 
 # project infomation
 project(uncat
-    VERSION 0.0.1
+    VERSION 0.1.0
     DESCRIPTION "some uncategorized cxx code"
     LANGUAGES CXX
 )

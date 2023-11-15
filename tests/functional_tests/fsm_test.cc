@@ -19,25 +19,25 @@ struct coin_operated_turnstile
     /// locked_state --coin_input--> unlocked_state
     inline unlocked_state operator()(locked_state &, coin_input const &)
     {
-        return unlocked_state();
+        return {};
     }
 
     /// unlocked_state --push_input--> locked_state
     inline locked_state operator()(unlocked_state &, push_input)
     {
-        return locked_state();
+        return {};
     }
 
     /// unexpected transition, should be ignored
     inline unlocked_state operator()(locked_state &, push_input const &)
     {
-        return unlocked_state();
+        return {};
     }
 
     /// unexpected transition, should be ignored
     inline locked_state operator()(unlocked_state &, coin_input)
     {
-        return locked_state();
+        return {};
     }
 };
 

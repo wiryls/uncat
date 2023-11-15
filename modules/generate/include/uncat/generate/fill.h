@@ -5,7 +5,7 @@
 #include <ranges>
 #include <type_traits>
 
-namespace uncat { namespace generate {
+namespace uncat::generate {
 
 template <std::forward_iterator O, std::random_access_iterator I>
 inline auto fill_with(O first, O last, I input_first, I input_last) -> void
@@ -41,4 +41,4 @@ requires std::same_as<std::ranges::range_value_t<I>, std::ranges::range_value_t<
     fill_with(output_first, output_last, input_first, input_last);
 }
 
-}} // namespace uncat::generate
+} // namespace uncat::generate

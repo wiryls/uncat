@@ -113,7 +113,7 @@ Integration:
 FetchContent_Declare(
     uncat
     GIT_REPOSITORY https://github.com/wiryls/uncat
-    GIT_TAG        3f583af48ed3ef4c0ec75cec1943f3d3e2f3669e)
+    GIT_TAG        2d401278a925c119cf82ec989b17d8446dda0779)
 
 FetchContent_MakeAvailable(uncat)
 ```

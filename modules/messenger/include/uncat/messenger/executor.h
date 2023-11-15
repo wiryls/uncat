@@ -8,18 +8,21 @@
 #include <type_traits>
 #include <vector>
 
-namespace uncat { namespace exec {
+namespace uncat::exec {
 
 class executor
 {
 public:
-    using task = std::function<void()>;
-
-    template <std::convertible_to<executor::task> T> auto operator()(T && todo) -> bool;
-
-public:
     explicit executor(std::size_t size = std::thread::hardware_concurrency());
     ~executor();
+    executor(executor && rhs)                  = delete;
+    executor(executor const & rhs)             = delete;
+    executor & operator=(executor && rhs)      = delete;
+    executor & operator=(executor const & rhs) = delete;
+
+public:
+    using task = std::function<void()>;
+    auto operator()(std::convertible_to<executor::task> auto && todo) -> bool;
 
 private:
     auto push(task && todo) -> bool;
@@ -34,9 +37,9 @@ private:
     std::vector<std::thread> consumers;
 };
 
-template <std::convertible_to<executor::task> T> auto executor::operator()(T && todo) -> bool
+auto executor::operator()(std::convertible_to<executor::task> auto && todo) -> bool
 {
-    return push(std::move(static_cast<task>(std::forward<T>(todo))));
+    return push(task(std::forward<decltype(todo)>(todo)));
 }
 
-}} // namespace uncat::exec
+} // namespace uncat::exec

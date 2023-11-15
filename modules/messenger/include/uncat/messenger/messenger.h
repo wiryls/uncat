@@ -7,6 +7,7 @@
 #include <mutex>
 #include <thread>
 #include <tuple>
+#include <type_traits>
 #include <unordered_map>
 
 #include <uncat/messenger/executor.h>
@@ -37,7 +38,7 @@ public:
     auto wait() -> void;
 
 private:
-    template <typename T> auto add_handler_unsafe(name_t const & name, handler_t<T> const & handler) -> void;
+    template <typename T> auto add_handler_unsafe(name_t const & name, handler_t<T> const & func) -> void;
     template <typename T> auto remove_handler_unsafe(name_t const & name) -> void;
     template <typename T> auto send_unsafe(T const & event) -> void;
 

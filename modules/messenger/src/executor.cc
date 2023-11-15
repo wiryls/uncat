@@ -1,11 +1,10 @@
+#include <cstddef>
+#include <mutex>
 #include <uncat/messenger/executor.h>
+#include <utility>
 
 uncat::exec::executor::executor(std::size_t size)
     : running(size > 0)
-    , tasks()
-    , mutex()
-    , condition()
-    , consumers()
 {
     consumers.reserve(size);
     if (size == 0)
@@ -20,7 +19,7 @@ uncat::exec::executor::executor(std::size_t size)
 uncat::exec::executor::~executor()
 {
     {
-        std::scoped_lock _(mutex);
+        std::scoped_lock const _(mutex);
         running = false;
     }
 
@@ -33,7 +32,7 @@ auto uncat::exec::executor::push(task && todo) -> bool
 {
     auto o = true;
     {
-        std::scoped_lock _(mutex);
+        std::scoped_lock const _(mutex);
         if (o = running; o)
             tasks.push_back(std::move(todo));
     }

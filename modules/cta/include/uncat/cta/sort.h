@@ -2,7 +2,7 @@
 
 #include <uncat/cta/common.h>
 
-namespace uncat { namespace sequence {
+namespace uncat::sequence {
 
 namespace aux = cta::aux;
 
@@ -132,7 +132,7 @@ public:
     template <typename T> using apply = typename sort<aux::make_list_t<T>>::type::to_integer_sequence;
 };
 
-}} // namespace uncat::sequence
+} // namespace uncat::sequence
 
 namespace uncat {
 

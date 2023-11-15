@@ -1,7 +1,8 @@
 #pragma once
+#include <cstddef>
 #include <type_traits>
 
-namespace uncat { namespace types {
+namespace uncat::types {
 
 /// curry
 template <template <typename...> class F, typename... H> struct curry
@@ -33,16 +34,16 @@ template <template <typename...> class T> struct fix<2, T>
     template <typename A, typename B> using type = typename T<A, B>::type;
 };
 
-}} // namespace uncat::types
+} // namespace uncat::types
 
-namespace uncat { namespace types {
+namespace uncat::types {
 
 /// same partially fills a std::is_same with T.
 template <typename T> using same = fix<1, curry<std::is_same, T>::template type>;
 
-}} // namespace uncat::types
+} // namespace uncat::types
 
-namespace uncat { namespace types {
+namespace uncat::types {
 /////////////////////////////////////////////////////////////////////////
 // types -> type
 
@@ -117,9 +118,9 @@ template <
 requires requires { typename find<P, T...>::type; }
 using find_t = typename find<P, T...>::type;
 
-}} // namespace uncat::types
+} // namespace uncat::types
 
-namespace uncat { namespace types {
+namespace uncat::types {
 /////////////////////////////////////////////////////////////////////////
 // types -> types
 
@@ -222,4 +223,4 @@ template <typename C>
 requires requires { typename reverse_t<C>; }
 using distinct_stable_t = reverse_t<distinct_t<reverse_t<C>>>;
 
-}} // namespace uncat::types
+} // namespace uncat::types

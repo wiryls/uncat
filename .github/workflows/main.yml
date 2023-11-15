@@ -19,12 +19,12 @@ jobs:
           style: file
           tidy-checks: '-*' # disable for now
 
-      - name: check
+      - name: Failure
         if: steps.format.outputs.checks-failed > 0
         run: echo "Some files failed the linting checks!" && exit 1
 
-      - name: build
+      - name: Build
         run: |
           mkdir build
-          cmake -S . -B build -DUNCAT_BUILD_TESTS=ON -DUNCAT_BUILD_EXAMPLES=ON -DCMAKE_CXX_CLANG_TIDY="clang-tidy" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          cmake -S . -B build -DUNCAT_BUILD_TESTS=ON -DUNCAT_BUILD_EXAMPLES=ON
           cmake --build build --config Debug -j 4

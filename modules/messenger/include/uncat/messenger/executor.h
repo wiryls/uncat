@@ -8,7 +8,8 @@
 #include <type_traits>
 #include <vector>
 
-namespace uncat::exec {
+namespace uncat::exec
+{
 
 class executor
 {

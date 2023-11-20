@@ -1,7 +1,8 @@
 #pragma once
 #include <uncat/types/types.h>
 
-namespace uncat::types {
+namespace uncat::types
+{
 
 template <typename H, typename... T>
 concept oneof = exists_v<H, T...>;

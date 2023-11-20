@@ -2,7 +2,8 @@
 
 #include <uncat/cta/common.h>
 
-namespace uncat::sequence {
+namespace uncat::sequence
+{
 
 namespace aux = cta::aux;
 
@@ -134,7 +135,8 @@ public:
 
 } // namespace uncat::sequence
 
-namespace uncat {
+namespace uncat
+{
 
 template <typename T, template <typename I, I, I> class C = less> struct quick_sort
 {};

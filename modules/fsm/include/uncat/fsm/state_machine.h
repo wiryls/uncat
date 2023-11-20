@@ -4,7 +4,8 @@
 #include <uncat/types/concepts.h>
 #include <uncat/types/types.h>
 
-namespace uncat::fsm::aux {
+namespace uncat::fsm::aux
+{
 
 template <typename F, typename T> struct validator : std::false_type
 {};
@@ -44,7 +45,8 @@ public:
 
 } // namespace uncat::fsm::aux
 
-namespace uncat::fsm {
+namespace uncat::fsm
+{
 
 template <typename S, typename D, typename... I> struct transition
 {};

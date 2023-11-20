@@ -2,7 +2,8 @@
 #include <cstddef>
 #include <type_traits>
 
-namespace uncat::types {
+namespace uncat::types
+{
 
 /// curry
 template <template <typename...> class F, typename... H> struct curry
@@ -36,14 +37,16 @@ template <template <typename...> class T> struct fix<2, T>
 
 } // namespace uncat::types
 
-namespace uncat::types {
+namespace uncat::types
+{
 
 /// same partially fills a std::is_same with T.
 template <typename T> using same = fix<1, curry<std::is_same, T>::template type>;
 
 } // namespace uncat::types
 
-namespace uncat::types {
+namespace uncat::types
+{
 /////////////////////////////////////////////////////////////////////////
 // types -> type
 
@@ -120,7 +123,8 @@ using find_t = typename find<P, T...>::type;
 
 } // namespace uncat::types
 
-namespace uncat::types {
+namespace uncat::types
+{
 /////////////////////////////////////////////////////////////////////////
 // types -> types
 

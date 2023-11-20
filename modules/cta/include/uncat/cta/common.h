@@ -2,7 +2,8 @@
 
 #include <utility>
 
-namespace uncat {
+namespace uncat
+{
 
 // Output std::integer_sequence.
 template <typename O, template <typename X, X...> class T, typename I, I x, I... xs>
@@ -40,7 +41,8 @@ template <typename I, I l, I r> struct greater
 
 } // namespace uncat
 
-namespace uncat::cta::aux {
+namespace uncat::cta::aux
+{
 
 // Join lists type.
 template <typename H, typename... T> struct join

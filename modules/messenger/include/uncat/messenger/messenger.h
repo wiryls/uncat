@@ -13,7 +13,8 @@
 #include <uncat/messenger/executor.h>
 #include <uncat/types/concepts.h>
 
-namespace uncat {
+namespace uncat
+{
 
 template <
     typename K,    // key    type, used as key in hash table

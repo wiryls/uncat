@@ -5,7 +5,8 @@
 #include <ranges>
 #include <type_traits>
 
-namespace uncat::generate {
+namespace uncat::generate
+{
 
 template <std::forward_iterator O, std::random_access_iterator I>
 inline auto fill_with(O first, O last, I input_first, I input_last) -> void

@@ -2,14 +2,16 @@
 
 #include <uncat/cta/common.h>
 
-namespace uncat::binary_tree {
+namespace uncat::binary_tree
+{
 
 template <typename ValueType, ValueType value, typename LeftChild = void, typename RightChild = void> struct node
 {};
 
 } // namespace uncat::binary_tree
 
-namespace uncat::binary_tree::aux {
+namespace uncat::binary_tree::aux
+{
 
 namespace aux = cta::aux;
 
@@ -62,7 +64,8 @@ public:
 
 } // namespace uncat::binary_tree::aux
 
-namespace uncat::binary_tree {
+namespace uncat::binary_tree
+{
 
 // Export
 template <typename T> struct pre_order
@@ -99,7 +102,8 @@ template <typename I, I x, typename L, typename R> struct level_order<node<I, x,
 
 } // namespace uncat::binary_tree
 
-namespace uncat {
+namespace uncat
+{
 
 template <typename I, I value, typename Left = void, typename Right = void>
 using binary_tree_node = typename binary_tree::node<I, value, Left, Right>;

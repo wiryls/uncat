@@ -22,7 +22,8 @@
 #include <type_traits>
 #include <variant>
 
-namespace uncat::far {
+namespace uncat::far
+{
 
 // char types that scanner supports.
 template <typename C>
@@ -61,8 +62,10 @@ concept bidirectional_sequence = std::ranges::range<S> && bidirectional_iterativ
 
 } // namespace uncat::far
 
-namespace uncat::far::aux {
-namespace detail {
+namespace uncat::far::aux
+{
+namespace detail
+{
 
 //// rewrite std::ranges::end("string literal") to that - 1
 struct end
@@ -103,7 +106,8 @@ inline constexpr auto end   = detail::end{};
 
 } // namespace uncat::far::aux
 
-namespace uncat { namespace far {
+namespace uncat::far
+{
 //// helpers
 
 template <char_type C> struct icase_comparator
@@ -223,9 +227,10 @@ struct iterator_pair
     // with CRTP.
 };
 
-}} // namespace uncat::far
+} // namespace uncat::far
 
-namespace uncat { namespace far {
+namespace uncat::far
+{
 //// rule (immutable)
 
 enum struct mode
@@ -318,9 +323,10 @@ template <char_type C> struct insert : iterator_pair<typename std::basic_string<
 template <char_type C, std::bidirectional_iterator I>
 using change = std::variant<retain<C, I>, remove<C, I>, insert<C>>;
 
-}} // namespace uncat::far
+} // namespace uncat::far
 
-namespace uncat { namespace far {
+namespace uncat::far
+{
 //// generator
 
 enum struct generator_status
@@ -602,7 +608,8 @@ public:
             using op = operation;
             switch (index)
             {
-            case &op::retain: {
+            case &op::retain:
+            {
                 auto l = std::get_if<&op::retain>(&lhs);
                 auto r = std::get_if<&op::retain>(&rhs);
                 if (l->second != r->first)
@@ -611,7 +618,8 @@ public:
                 l->second = r->second;
                 break;
             }
-            case &op::remove: {
+            case &op::remove:
+            {
                 auto l = std::get_if<&op::remove>(&lhs);
                 auto r = std::get_if<&op::remove>(&rhs);
                 if (l->second != r->first)
@@ -620,7 +628,8 @@ public:
                 l->second = r->second;
                 break;
             }
-            case &op::insert: {
+            case &op::insert:
+            {
                 // not a good idea to expand std::basic_string_view
                 return *this;
             }
@@ -680,9 +689,10 @@ private:
     std::optional<value_type> last{std::nullopt};
 };
 
-}} // namespace uncat::far
+} // namespace uncat::far
 
-namespace uncat { namespace far {
+namespace uncat::far
+{
 //// control group
 
 template <typename F, typename I>
@@ -764,9 +774,10 @@ auto apply(rule<M, C> const & rule, R retain, O remove, N insert, I first, I las
     if (first != last)
         retain(first, last);
 }
-}} // namespace uncat::far
+} // namespace uncat::far
 
-namespace uncat {
+namespace uncat
+{
 //// export to external namespace
 
 using scan_mode = far::mode;

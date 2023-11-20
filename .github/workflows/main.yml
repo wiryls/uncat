@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: lukka/get-cmake@v3.21.2
+      - uses: lukka/get-cmake@v3.27.0
       - uses: cpp-linter/cpp-linter-action@v2
         id: format
         with:

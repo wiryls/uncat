@@ -1,5 +1,5 @@
 #[[ requirements ]]
-cmake_minimum_required(VERSION 3.14)                # for FetchContent_MakeAvailable
+cmake_minimum_required(VERSION 3.25)                # for FetchContent_Declare(SYSTEM)
 enable_testing()                                    # setup for tests.
 set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1) # prevent CTest added targets
                                                     # see: https://stackoverflow.com/questions/44949354
@@ -13,20 +13,14 @@ FetchContent_Declare(
     catch
     GIT_REPOSITORY https://github.com/catchorg/Catch2
     GIT_TAG         v3.4.0
-    GIT_SHALLOW    ON)
+    GIT_SHALLOW    ON
+    SYSTEM)
 set(CATCH_INSTALL_DOCS   OFF CACHE INTERNAL "ignore catch docs")
 set(CATCH_INSTALL_EXTRAS OFF CACHE INTERNAL "ignore catch extras")
 
 # enable all dependencies
 FetchContent_MakeAvailable(catch)
-
-# config and ignore warnings
-foreach(_target Catch2 Catch2WithMain)
-    set_target_properties(${_target} PROPERTIES FOLDER "third_party/tests")
-    set(third_party_targets ${third_party_targets} ${_target} CACHE INTERNAL "third party target list")
-    get_target_property(_includes ${_target} INTERFACE_INCLUDE_DIRECTORIES)
-    target_include_directories(${_target} SYSTEM INTERFACE ${_includes})
-endforeach()
+set_target_properties(Catch2 Catch2WithMain PROPERTIES FOLDER "third_party/tests")
 
 #[[ subprojects ]]
 

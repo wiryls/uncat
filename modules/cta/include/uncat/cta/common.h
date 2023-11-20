@@ -5,16 +5,18 @@
 namespace uncat {
 
 // Output std::integer_sequence.
-template <typename O, template <typename X, X...> class T, typename I, I... xs>
-auto inline static operator<<(O & oss, T<I, xs...> /*unused*/) -> O &
+template <typename O, template <typename X, X...> class T, typename I, I x, I... xs>
+auto inline static operator<<(O & oss, T<I, x, xs...> /*unused*/) -> O &
 {
-    return (oss << ... << xs);
+    oss << x;
+    ((oss << ',' << ' ').operator<< /* avoid being binary operator */ (xs), ...);
+    return oss;
 }
 
-template <typename O, template <typename X, X...> class T, typename I, I x, I y, I... xs>
-auto inline static operator<<(O & oss, T<I, x, y, xs...> /*unused*/) -> O &
+template <typename O, template <typename X, X...> class T, typename I>
+auto inline static operator<<(O & oss, T<I> /*unused*/) -> O &
 {
-    return oss << x << ", " << T<I, y, xs...>();
+    return oss;
 }
 
 // Comparator \ less \ greater.

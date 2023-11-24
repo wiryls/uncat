@@ -2,15 +2,13 @@
 
 #include <uncat/cta/common.h>
 
-namespace uncat::sequence
+namespace uncat::cta::aux
 {
 
-namespace aux = cta::aux;
-
-template <typename I, template <I, I> class C = comparator<I, less>::template type> struct quick_sort
+template <typename I, template <I, I> class C> struct quick_sort
 {
 private:
-    template <I... xs> using list = aux::list<I, xs...>;
+    template <I... xs> using list = list<I, xs...>;
 
     template <I y> struct partition
     {
@@ -49,27 +47,26 @@ private:
         using partitioned  = partition<x>::template on<list<xs...>>;
         using left_branch  = typename sort<typename partitioned::left>::type;
         using right_branch = typename sort<typename partitioned::right>::type;
-        using type         = aux::join_t<left_branch, list<x>, right_branch>;
+        using type         = join_t<left_branch, list<x>, right_branch>;
     };
 
 public:
-    template <I... xs> using numbers  = typename sort<list<xs...>>::type::to_integer_sequence;
-    template <typename T> using apply = typename sort<aux::make_list_t<T>>::type::to_integer_sequence;
+    template <I... xs> using apply = typename sort<list<xs...>>::type;
 };
 
-template <typename I, template <I, I> class C = comparator<I, less>::template type> struct merge_sort
+template <typename I, template <I, I> class C> struct merge_sort
 {
 private:
-    template <I... xs> using list = aux::list<I, xs...>;
+    template <I... xs> using list = list<I, xs...>;
 
-    template <std::size_t k, typename L, typename R = list<>> struct split
+    template <unsigned k, typename L, typename R = list<>> struct split
     {
         using left  = L;
         using right = R;
     };
 
-    template <std::size_t k, I... ls, I l, I... rs>
-    requires(k > 0)
+    template <unsigned k, I... ls, I l, I... rs>
+    requires(k != 0)
     struct split<k, list<l, ls...>, list<rs...>>
     {
         using next  = split<k - 1, list<ls...>, list<rs..., l>>;
@@ -129,37 +126,38 @@ private:
     };
 
 public:
-    template <I... xs> using numbers  = typename sort<list<xs...>>::type::to_integer_sequence;
-    template <typename T> using apply = typename sort<aux::make_list_t<T>>::type::to_integer_sequence;
+    template <I... xs> using apply = typename sort<list<xs...>>::type;
 };
 
-} // namespace uncat::sequence
+} // namespace uncat::cta::aux
 
 namespace uncat
 {
 
-template <typename T, template <typename I, I, I> class C = less> struct quick_sort
+template <typename T, template <typename I, I, I> class C = cta::less> struct quick_sort
 {};
 
 template <template <typename X, X...> class T, typename I, I... xs, template <typename X, X, X> class C>
 struct quick_sort<T<I, xs...>, C>
 {
-    using type = typename sequence::quick_sort<I, comparator<I, C>::template type>::template numbers<xs...>;
+    using type =
+        typename cta::aux::quick_sort<I, cta::comparator<I, C>::template type>::template apply<xs...>::template to<T>;
 };
 
-template <typename T, template <typename I, I, I> class C = less> struct merge_sort
+template <typename T, template <typename I, I, I> class C = cta::less> struct merge_sort
 {};
 
 template <template <typename X, X...> class T, typename I, I... xs, template <typename X, X, X> class C>
 struct merge_sort<T<I, xs...>, C>
 {
-    using type = typename sequence::merge_sort<I, comparator<I, C>::template type>::template numbers<xs...>;
+    using type =
+        typename cta::aux::merge_sort<I, cta::comparator<I, C>::template type>::template apply<xs...>::template to<T>;
 };
 
-template <typename List, template <typename I, I, I> class Comparator = less>
+template <typename List, template <typename I, I, I> class Comparator = cta::less>
 using quick_sort_t = typename quick_sort<List, Comparator>::type;
 
-template <typename List, template <typename I, I, I> class Comparator = less>
+template <typename List, template <typename I, I, I> class Comparator = cta::less>
 using merge_sort_t = typename merge_sort<List, Comparator>::type;
 
 } // namespace uncat

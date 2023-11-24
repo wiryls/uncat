@@ -1,24 +1,31 @@
 #pragma once
 
-#include <utility>
-
-namespace uncat
+namespace uncat::cta
 {
 
-// Output std::integer_sequence.
+// Output something like std::integer_sequence.
 template <typename O, template <typename X, X...> class T, typename I, I x, I... xs>
-auto inline static operator<<(O & oss, T<I, x, xs...> /*unused*/) -> O &
+auto inline static operator<<(O & oss, T<I, x, xs...> /* unused */) -> O &
 {
     oss << x;
-    ((oss << ',' << ' ').operator<< /* avoid being binary operator */ (xs), ...);
+    ((oss << ' ').operator<< /* avoid being binary operator */ (xs), ...);
     return oss;
 }
 
 template <typename O, template <typename X, X...> class T, typename I>
-auto inline static operator<<(O & oss, T<I> /*unused*/) -> O &
+auto inline static operator<<(O & oss, T<I> /* unused */) -> O &
 {
     return oss;
 }
+
+// An integer_sequence like List.
+template <typename I, I... xs> struct list
+{
+    template <template <typename T, T...> class L> using to = L<I, xs...>;
+
+    template <I x> using push_front = list<I, x, xs...>;
+    template <I x> using push_back  = list<I, xs..., x>;
+};
 
 // Comparator \ less \ greater.
 template <typename I, template <typename X, X l, X r> class C> struct comparator
@@ -39,12 +46,14 @@ template <typename I, I l, I r> struct greater
     auto static constexpr value = l > r;
 };
 
-} // namespace uncat
+} // namespace uncat::cta
 
-namespace uncat::cta::aux
+namespace uncat::cta
+{
+namespace aux
 {
 
-// Join lists type.
+// Join lists like type.
 template <typename H, typename... T> struct join
 {
     using type = H;
@@ -71,25 +80,8 @@ struct join<T<I, ls...>, T<I, ms...>, T<I, rs...>>
     using type = T<I, ls..., ms..., rs...>;
 };
 
-template <typename... T> using join_t = typename join<T...>::type;
+} // namespace aux
 
-// An integer_sequence like List.
-template <typename I, I... xs> struct list
-{
-    using to_integer_sequence = std::integer_sequence<I, xs...>;
+template <typename... T> using join_t = typename aux::join<T...>::type;
 
-    template <I x> using push_front = list<I, x, xs...>;
-    template <I x> using push_back  = list<I, xs..., x>;
-};
-
-template <typename Source> struct make_list
-{};
-
-template <template <typename X, X...> class T, typename I, I... xs> struct make_list<T<I, xs...>>
-{
-    using type = list<I, xs...>;
-};
-
-template <typename T> using make_list_t = typename make_list<T>::type;
-
-} // namespace uncat::cta::aux
+} // namespace uncat::cta

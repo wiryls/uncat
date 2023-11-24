@@ -14,7 +14,8 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/catchorg/Catch2
     GIT_TAG         v3.4.0
     GIT_SHALLOW    ON
-    SYSTEM)
+    SYSTEM
+    FIND_PACKAGE_ARGS NAMES Catch2)
 set(CATCH_INSTALL_DOCS   OFF CACHE INTERNAL "ignore catch docs")
 set(CATCH_INSTALL_EXTRAS OFF CACHE INTERNAL "ignore catch extras")
 
@@ -23,15 +24,6 @@ FetchContent_MakeAvailable(catch)
 set_target_properties(Catch2 Catch2WithMain PROPERTIES FOLDER "third_party/tests")
 
 #[[ subprojects ]]
-
-# shared settings for subprojects
-add_compile_options(
-    "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-pedantic-errors;-Wall;-Wextra;-Wconversion;-Werror>"
-    "$<$<AND:$<NOT:$<CXX_COMPILER_ID:MSVC>>,$<CONFIG:RELEASE>>:-O3>"
-    "$<$<AND:$<NOT:$<CXX_COMPILER_ID:MSVC>>,$<CONFIG:DEBUG>>:-g>"
-
-    "$<$<CXX_COMPILER_ID:MSVC>:/WX;/W4;/utf-8>"
-    "$<$<AND:$<CONFIG:RELEASE>,$<CXX_COMPILER_ID:MSVC>>:/O2>")
 
 # add all subprojects
 add_subdirectory( benchmark_tests)

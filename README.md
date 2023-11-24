@@ -14,27 +14,27 @@ With the help of C++ template-meta programming, we can even perform [level-order
 
 int main()
 {
-    using uncat::operator<<;
-    using uncat::binary_tree::node;
+    using uncat::cta::operator<<;
+    using uncat::cta::binary_tree::node;
     using tree = node<int, 0, node<int, 1, node<int, 3>>, node<int, 2, void, node<int, 4, node<int, 5>>>>;
     /*     0
-     *    / \
-     *   1   2
-     *  /     \
-     * 3       4
-     *        /
-     *       5
-     */
+        *    / \
+        *   1   2
+        *  /     \
+        * 3       4
+        *        /
+        *       5
+        */
 
     std::cout << uncat::pre_order_traversal_t<tree>() << '\n'
-              << uncat::in_order_traversal_t<tree>() << '\n'
-              << uncat::post_order_traversal_t<tree>() << '\n'
-              << uncat::level_order_traversal_t<tree>() << std::endl;
+                << uncat::in_order_traversal_t<tree>() << '\n'
+                << uncat::post_order_traversal_t<tree>() << '\n'
+                << uncat::level_order_traversal_t<tree>() << '\n';
     // Output:
-    // 0, 1, 3, 2, 4, 5
-    // 3, 1, 0, 2, 5, 4
-    // 3, 1, 5, 4, 2, 0
-    // 0, 1, 2, 3, 4, 5
+    // 0 1 3 2 4 5
+    // 3 1 0 2 5 4
+    // 3 1 5 4 2 0
+    // 0 1 2 3 4 5
     return 0;
 }
 ```
@@ -52,15 +52,8 @@ Project layout shows as follows:
 │  ├─cta         // Library folder.
 │  │  └─include  // A header only library, thus no "src" folder.
 │  │
-│  ├─far
-│  │  └─include
-│  │
 │  ├─fsm
 │  │  └─include
-│  │
-│  ├─messenger
-│  │  ├─include  // Exported header files.
-│  │  └─src      // Some cpp source files and header files.
 │  │
 │  └─types
 │      └─include
@@ -87,15 +80,14 @@ e.g. the header-only library `far`:
 1. Create a `build` directory for out-of-source building.
     ```shell
     mkdir build
-    cd build
     ```
 2. Configure it.
     ```shell
-    cmake -DUNCAT_BUILD_TESTS=ON -DUNCAT_BUILD_EXAMPLES=ON ..
+    cmake -S . -B build -DUNCAT_BUILD_TESTS=ON -DUNCAT_BUILD_EXAMPLES=ON
     ```
 3. Build all (in debug mode).
     ```shell
-    cmake --build . --config Debug -j 18
+    cmake --build build --config Debug -j 18
     ```
 
 ### Import Project in Another Project via CMake `FetchContent`
@@ -121,5 +113,5 @@ FetchContent_MakeAvailable(uncat)
 Link:
 
 ```cmake
-target_link_libraries(${your_target} PRIVATE uncat)
+target_link_libraries(${your_target} PRIVATE uncat::cta)
 ```

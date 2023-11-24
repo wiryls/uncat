@@ -5,9 +5,7 @@ string(TOLOWER ${name} name)
 
 # source lists
 set(sources
-    "$<$<NOT:$<CXX_COMPILER_ID:GNU>>:far_test.cc>"
     fsm_test.cc
-    messenger_test.cc
     types_test.cc)
 
 # executable
@@ -16,9 +14,9 @@ set_target_properties(${name} PROPERTIES FOLDER "${PROJECT_NAME}/tests")
 set_target_properties(${name} PROPERTIES CXX_STANDARD 23)
 target_link_libraries(${name} PRIVATE
     Catch2::Catch2WithMain
-    uncat::far
+    default_compile_definitions
+    uncat::cta
     uncat::fsm
-    uncat::messenger
     uncat::types)
 
 # add for CTest

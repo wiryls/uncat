@@ -67,11 +67,11 @@ Project layout shows as follows:
 
 Executables are placed in `examples` folder. And libraries are in `modules`, test files in `tests`.
 
-e.g. the header-only library `far`:
+e.g. the header-only library `fsm`:
 
-- Source files: [`modules/far/include/uncat/far/far.h`](modules/far/include/uncat/far/far.h)
-- Benchmark tests: [`tests/benchmark_tests/far_test.cc`](tests/benchmark_tests/far_test.cc)
-- Functional tests: [`tests/functional_tests/far_test.cc`](tests/functional_tests/far_test.cc)
+- Source files: [`modules/fsm/include/uncat/fsm/state_machine.h`](modules/fsm/include/uncat/fsm/state_machine.h)
+- Benchmark tests: `tests/benchmark_tests/fsm_test.cc` (to be added)
+- Functional tests: [`tests/functional_tests/fsm_test.cc`](tests/functional_tests/fsm_test.cc)
 
 ## Usage
 
@@ -105,7 +105,7 @@ Integration:
 FetchContent_Declare(
     uncat
     GIT_REPOSITORY https://github.com/wiryls/uncat
-    GIT_TAG        2d401278a925c119cf82ec989b17d8446dda0779)
+    GIT_TAG        ee9cb8f138973f5187e349971ef72944f77a4137)
 
 FetchContent_MakeAvailable(uncat)
 ```

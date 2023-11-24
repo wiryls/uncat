@@ -18,7 +18,5 @@ source_group              (TREE "${CMAKE_CURRENT_SOURCE_DIR}/include" PREFIX "He
 set_target_properties     (${name} PROPERTIES FOLDER "${PROJECT_NAME}/modules")
 target_compile_features   (${name} INTERFACE cxx_std_20)
 target_include_directories(${name} INTERFACE
-    # work when being used directly by other library
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    # work when installed
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> # work when being used directly by other library
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)      # work when installed

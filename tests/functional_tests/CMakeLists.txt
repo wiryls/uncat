@@ -14,7 +14,6 @@ set_target_properties(${name} PROPERTIES FOLDER "${PROJECT_NAME}/tests")
 set_target_properties(${name} PROPERTIES CXX_STANDARD 23)
 target_link_libraries(${name} PRIVATE
     Catch2::Catch2WithMain
-    default_compile_definitions
     uncat::cta
     uncat::fsm
     uncat::types)

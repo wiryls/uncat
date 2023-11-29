@@ -5,9 +5,9 @@
 #include <uncat/cta/common.h>
 #include <uncat/cta/sort.h>
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 int main()
 {
-    // NOLINTBEGIN(cppcoreguidlines-avoid-magic-numbers)
     using uncat::cta::operator<<;
     {
         using list = std::integer_sequence<int, 1, -2, 3, -4, 5, -6>;
@@ -35,5 +35,4 @@ int main()
                   << uncat::level_order_traversal_t<tree>() << '\n';
     }
     return 0;
-    // NOLINTEND(cppcoreguidlines-avoid-magic-numbers)
 }

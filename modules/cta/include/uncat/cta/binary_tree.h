@@ -56,7 +56,7 @@ public:
 
     template <typename... N, I value, typename L, typename R> struct traversal<order::level, node<I, value, L, R>, N...>
     {
-        using type = traversal_t<order::level, N..., L, R>::template push_front<value>;
+        using type = typename traversal_t<order::level, N..., L, R>::template push_front<value>;
     };
 };
 
@@ -71,7 +71,7 @@ template <typename T> struct pre_order
 
 template <typename I, I x, typename L, typename R> struct pre_order<node<I, x, L, R>>
 {
-    using type = aux::any_order<I>::template traversal_t<aux::order::pre, node<I, x, L, R>>;
+    using type = typename aux::any_order<I>::template traversal_t<aux::order::pre, node<I, x, L, R>>;
 };
 
 template <typename T> struct in_order
@@ -79,7 +79,7 @@ template <typename T> struct in_order
 
 template <typename I, I x, typename L, typename R> struct in_order<node<I, x, L, R>>
 {
-    using type = aux::any_order<I>::template traversal_t<aux::order::in, node<I, x, L, R>>;
+    using type = typename aux::any_order<I>::template traversal_t<aux::order::in, node<I, x, L, R>>;
 };
 
 template <typename T> struct post_order
@@ -87,7 +87,7 @@ template <typename T> struct post_order
 
 template <typename I, I x, typename L, typename R> struct post_order<node<I, x, L, R>>
 {
-    using type = aux::any_order<I>::template traversal_t<aux::order::post, node<I, x, L, R>>;
+    using type = typename aux::any_order<I>::template traversal_t<aux::order::post, node<I, x, L, R>>;
 };
 
 template <typename N> struct level_order
@@ -95,7 +95,7 @@ template <typename N> struct level_order
 
 template <typename I, I x, typename L, typename R> struct level_order<node<I, x, L, R>>
 {
-    using type = aux::any_order<I>::template traversal_t<aux::order::level, node<I, x, L, R>>;
+    using type = typename aux::any_order<I>::template traversal_t<aux::order::level, node<I, x, L, R>>;
 };
 
 } // namespace uncat::cta::binary_tree
@@ -104,7 +104,7 @@ namespace uncat
 {
 
 template <typename Type, Type value, typename Left = void, typename Right = void>
-using binary_tree_node = typename cta::binary_tree::node<Type, value, Left, Right>;
+using binary_tree_node = cta::binary_tree::node<Type, value, Left, Right>;
 
 template <typename Node> using pre_order_traversal_t   = typename cta::binary_tree::pre_order<Node>::type;
 template <typename Node> using in_order_traversal_t    = typename cta::binary_tree::in_order<Node>::type;

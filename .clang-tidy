@@ -1,25 +1,27 @@
 ---
-Checks: "*,
+Checks: '*,
   -abseil-*,
   -altera-*,
   -android-*,
+  -cppcoreguidelines-avoid-do-while,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-non-private-member-variables-in-classes,
   -fuchsia-*,
   -google-*,
+  -hicpp-braces-around-statements,
   -llvm*,
-  -zircon-*,
+  -misc-confusable-identifiers,
+  -misc-non-private-member-variables-in-classes,
   -modernize-use-trailing-return-type,
+  -readability-avoid-const-params-in-decls,
+  -readability-braces-around-statements,
   -readability-else-after-return,
   -readability-identifier-length,
-  -readability-braces-around-statements,
-  -readability-avoid-const-params-in-decls,
+  -readability-magic-numbers,
   -readability-redundant-access-specifiers,
   -readability-static-accessed-through-instance,
-  -cppcoreguidelines-avoid-do-while,
-  -cppcoreguidelines-non-private-member-variables-in-classes,
-  -misc-non-private-member-variables-in-classes,
-  -misc-confusable-identifiers,
-  -hicpp-braces-around-statements,
-"
+  -zircon-*
+'
 FormatStyle: none
 WarningsAsErrors: ''
 HeaderFilterRegex: '.*'

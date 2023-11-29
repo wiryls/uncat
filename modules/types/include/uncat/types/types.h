@@ -1,5 +1,4 @@
 #pragma once
-#include <cstddef>
 #include <type_traits>
 
 namespace uncat::types
@@ -17,7 +16,7 @@ template <template <typename...> class F, typename... T> struct append
 };
 
 /// make a non variadic template from a variadic template
-template <std::size_t, template <typename...> class T> struct fix
+template <unsigned, template <typename...> class T> struct fix
 {};
 
 template <template <typename...> class T> struct fix<0, T>

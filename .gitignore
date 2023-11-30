@@ -9,3 +9,4 @@
 /.vs
 /.vscode
 /CMakeSettings.json
+/.cache

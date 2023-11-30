@@ -17,25 +17,25 @@ struct coin_input
 struct coin_operated_turnstile
 {
     /// locked_state --coin_input--> unlocked_state
-    inline unlocked_state operator()(locked_state &, coin_input const &)
+    inline unlocked_state operator()(locked_state & /*unused*/, coin_input const & /*unused*/)
     {
         return {};
     }
 
     /// unlocked_state --push_input--> locked_state
-    inline locked_state operator()(unlocked_state &, push_input)
+    inline locked_state operator()(unlocked_state & /*unused*/, push_input /*unused*/)
     {
         return {};
     }
 
     /// unexpected transition, should be ignored
-    inline unlocked_state operator()(locked_state &, push_input const &)
+    inline unlocked_state operator()(locked_state & /*unused*/, push_input const & /*unused*/)
     {
         return {};
     }
 
     /// unexpected transition, should be ignored
-    inline locked_state operator()(unlocked_state &, coin_input)
+    inline locked_state operator()(unlocked_state & /*unused*/, coin_input /*unused*/)
     {
         return {};
     }
@@ -44,13 +44,14 @@ struct coin_operated_turnstile
 TEST_CASE("coin operated turnstile", "[fsm]")
 {
     using uncat::fsm::state_machine, uncat::fsm::transition;
+    using turnstile_state_machine = state_machine<
+        coin_operated_turnstile,                              // states
+        transition<locked_state, unlocked_state, coin_input>, // transitions
+        transition<unlocked_state, locked_state, push_input>>;
 
-    SECTION("with default constructor")
+    SECTION("default constructor")
     {
-        auto m = state_machine<
-            coin_operated_turnstile, transition<locked_state, unlocked_state, coin_input>,
-            transition<unlocked_state, locked_state, push_input>>();
-
+        auto m = turnstile_state_machine();
         for (auto i = 0; i < 3; ++i)
         {
             REQUIRE(m.accept(push_input()) == false);
@@ -59,12 +60,9 @@ TEST_CASE("coin operated turnstile", "[fsm]")
             REQUIRE(m.accept(push_input()) == true);
         }
     }
-    SECTION("with another constructor")
+    SECTION("constructor with initial values")
     {
-        auto m = state_machine<
-            coin_operated_turnstile, transition<locked_state, unlocked_state, coin_input>,
-            transition<unlocked_state, locked_state, push_input>>(unlocked_state(), coin_operated_turnstile());
-
+        auto m = turnstile_state_machine(unlocked_state(), coin_operated_turnstile());
         for (auto i = 0; i < 3; ++i)
         {
             REQUIRE(m.accept(push_input()) == true);
@@ -73,14 +71,11 @@ TEST_CASE("coin operated turnstile", "[fsm]")
             REQUIRE(m.accept(coin_input()) == false);
         }
     }
-    SECTION("as a member variable")
+    SECTION("use as a member")
     {
         struct wrapper
         {
-            state_machine<
-                coin_operated_turnstile, transition<locked_state, unlocked_state, coin_input>,
-                transition<unlocked_state, locked_state, push_input>>
-                machine;
+            turnstile_state_machine machine;
         };
 
         auto   w = wrapper();

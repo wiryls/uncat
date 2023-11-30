@@ -52,10 +52,7 @@ Project layout shows as follows:
 │  ├─cta         // Library folder.
 │  │  └─include  // A header only library, thus no "src" folder.
 │  │
-│  ├─fsm
-│  │  └─include
-│  │
-│  └─types
+│  └─fsm
 │      └─include
 │
 ├─tests          // Tests files (base on Catch2)

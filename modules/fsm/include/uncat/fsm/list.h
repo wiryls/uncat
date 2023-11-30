@@ -26,25 +26,25 @@ template <typename L> struct distinct_stable
 template <template <typename...> class L, typename... V> struct distinct_stable<L<V...>>
 {
 private:
-    template <typename O, typename... I> struct into
+    template <typename O, typename... I> struct distinct_into
     {
         using type = O;
     };
 
-    template <typename... O, typename T, typename... I>
-    requires(std::is_same_v<T, O> || ...)
-    struct into<L<O...>, T, I...>
+    template <typename O, typename T, typename... I> struct distinct_into<O, T, I...>
     {
-        using type = typename into<L<O...>, I...>::type;
+        using type = typename distinct_into<O, I...>::type;
     };
 
-    template <typename... O, typename T, typename... I> struct into<L<O...>, T, I...>
+    template <typename... O, typename T, typename... I>
+    requires(!(std::is_same_v<T, O> || ...))
+    struct distinct_into<L<O...>, T, I...>
     {
-        using type = typename into<L<O..., T>, I...>::type;
+        using type = typename distinct_into<L<O..., T>, I...>::type;
     };
 
 public:
-    using type = typename into<L<>, V...>::type;
+    using type = typename distinct_into<L<>, V...>::type;
 };
 
 } // namespace uncat::fsm::aux

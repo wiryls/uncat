@@ -1,9 +1,12 @@
+#include <cstdint>
 #include <iostream>
+#include <optional>
+#include <type_traits>
 #include <utility>
 
 #include <uncat/cta/binary_tree.h>
-#include <uncat/cta/common.h>
 #include <uncat/cta/sort.h>
+#include <uncat/fsm/state_machine.h>
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
 int main()
@@ -33,6 +36,13 @@ int main()
                   << uncat::in_order_traversal_t<tree>() << '\n'
                   << uncat::post_order_traversal_t<tree>() << '\n'
                   << uncat::level_order_traversal_t<tree>() << '\n';
+    }
+    {
+        using namespace uncat::fsm;
+        using uncat::fsm::state_machine;
+        auto t = [](uint8_t, uint16_t) { return std::optional<uint32_t>(0); };
+        auto m = state_machine<decltype(t), std::tuple<uint8_t, uint32_t, uint16_t>>();
+        std::cout << std::boolalpha << m.input(uint16_t()) << '\n';
     }
     return 0;
 }

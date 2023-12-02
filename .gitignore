@@ -2,7 +2,7 @@
 .DS_Store
 
 # CMake Project
-/build
+/build*
 /out
 
 # IDE

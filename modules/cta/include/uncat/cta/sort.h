@@ -1,5 +1,4 @@
 #pragma once
-
 #include <uncat/cta/common.h>
 
 namespace uncat::cta::aux

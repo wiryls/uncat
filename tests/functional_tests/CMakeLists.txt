@@ -5,14 +5,13 @@ string(TOLOWER ${name} name)
 
 # source lists
 set(sources
-    fsm_test.cc
-)
+    fsm_test.cc)
 
 # executable
 add_executable(${name} ${sources})
-set_target_properties(${name} PROPERTIES FOLDER "${PROJECT_NAME}/tests")
-set_target_properties(${name} PROPERTIES CXX_STANDARD 23)
-target_link_libraries(${name} PRIVATE
+set_target_properties  (${name} PROPERTIES FOLDER "${PROJECT_NAME}/tests")
+target_compile_features(${name} PRIVATE cxx_std_23)
+target_link_libraries  (${name} PRIVATE
     Catch2::Catch2WithMain
     uncat::cta
     uncat::fsm)

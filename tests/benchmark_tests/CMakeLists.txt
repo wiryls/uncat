@@ -10,7 +10,7 @@ set(sources
 # executable
 add_executable(${name} ${sources})
 set_target_properties  (${name} PROPERTIES FOLDER "${PROJECT_NAME}/tests")
-target_compile_features(${name} PRIVATE cxx_std_23)
+target_compile_features(${name} PRIVATE cxx_std_20)
 target_link_libraries  (${name} PRIVATE
     Catch2::Catch2WithMain
     uncat::cta

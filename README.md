@@ -1,5 +1,8 @@
 # Some Uncat(egorized) CXX Code
 
+[![cpp-linter](https://github.com/cpp-linter/cpp-linter-action/actions/workflows/cpp-linter.yml/badge.svg)](https://github.com/wiryls/uncat/actions/workflows/build.yml)
+![GitHub](https://img.shields.io/github/license/wiryls/uncat?label=license&logo=github)
+
 My C++ playground:
 
 - Project organized by modern CMake.
@@ -87,7 +90,7 @@ e.g. the header-only library `fsm`:
     cmake --build build --config Debug -j 18
     ```
 
-### Import Project in Another Project via CMake `FetchContent`
+### Import via CMake `FetchContent`
 
 Dependency:
 
@@ -102,7 +105,7 @@ Integration:
 FetchContent_Declare(
     uncat
     GIT_REPOSITORY https://github.com/wiryls/uncat
-    GIT_TAG        ee9cb8f138973f5187e349971ef72944f77a4137)
+    GIT_TAG        8a07d0b741b08b7b1d9b3037fbae8ed60af895c8)
 
 FetchContent_MakeAvailable(uncat)
 ```

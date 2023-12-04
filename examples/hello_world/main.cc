@@ -8,7 +8,7 @@
 #include <uncat/fsm/state_machine.h>
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
-int main()
+auto main() -> int
 {
     using uncat::cta::operator<<;
     {

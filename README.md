@@ -78,14 +78,19 @@ e.g. the header-only library `fsm`:
 ### Build this Project
 
 1. Create a `build` directory for out-of-source building.
+
     ```shell
     mkdir build
     ```
+
 2. Configure it.
+
     ```shell
     cmake -S . -B build -DUNCAT_BUILD_TESTS=ON -DUNCAT_BUILD_EXAMPLES=ON
     ```
+
 3. Build all (in debug mode).
+
     ```shell
     cmake --build build --config Debug -j 18
     ```

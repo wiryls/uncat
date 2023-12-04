@@ -30,7 +30,6 @@ int main()
          *        /
          *       5
          */
-
         std::cout << uncat::pre_order_traversal_t<tree>() << '\n'
                   << uncat::in_order_traversal_t<tree>() << '\n'
                   << uncat::post_order_traversal_t<tree>() << '\n'

@@ -19,6 +19,8 @@ Checks: '*,
   -readability-static-accessed-through-instance,
   -zircon-*
 '
+CheckOptions:
+- { key: readability-function-cognitive-complexity.IgnoreMacros, value: true }
 FormatStyle: none
 WarningsAsErrors: ''
 HeaderFilterRegex: '.*'

@@ -1,5 +1,4 @@
 #pragma once
-#include <concepts>
 #include <optional>
 #include <type_traits>
 #include <variant>
@@ -9,6 +8,7 @@
 namespace uncat::fsm::aux
 {
 
+// An unary predicate builder to match tails.
 template <typename... T> struct with_tail
 {
     template <typename V> struct type

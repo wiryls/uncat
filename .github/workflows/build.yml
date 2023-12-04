@@ -1,4 +1,4 @@
-name: Build (ubuntu)
+name: Build ubuntu
 
 on:
   workflow_dispatch:
@@ -12,25 +12,25 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: lukka/get-cmake@v3.27.0
+    - uses: actions/checkout@v4
+    - uses: lukka/get-cmake@v3.27.0
 
-      - name: CMake Configure
-        run: |
-          mkdir build
-          cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DUNCAT_BUILD_TESTS=ON -DUNCAT_BUILD_EXAMPLES=ON
+    - name: CMake Configure
+      run: |
+        mkdir build
+        cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DUNCAT_BUILD_TESTS=ON -DUNCAT_BUILD_EXAMPLES=ON
 
-      - uses: cpp-linter/cpp-linter-action@v2
-        id: format
-        with:
-          database: 'build'
-          style: file
-          tidy-checks: '-*' # disable for now
-          version: 16
+    - uses: cpp-linter/cpp-linter-action@v2
+      id: format
+      with:
+        database: 'build'
+        style: file
+        tidy-checks: ''
+        version: 16
 
-      - name: Test Failure
-        if: steps.format.outputs.checks-failed > 0
-        run: echo "Some files failed the linting checks!" && exit 1
+    - name: Test Failure
+      if: steps.format.outputs.checks-failed > 0
+      run: echo "Some files failed the linting checks!" && exit 1
 
-      - name: CMake Build
-        run: cmake --build build --config Debug -j 4
+    - name: CMake Build
+      run: cmake --build build --config Debug -j 4

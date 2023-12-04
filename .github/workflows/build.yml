@@ -2,10 +2,11 @@ name: Build (ubuntu)
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches: [ "main" ]
-  push:
-    branches: [ "main" ]
+  workflow_run:
+    workflows: ["Markdown Lint"]
+    branches: [main]
+    types:
+      - completed
 
 jobs:
   build-test:
@@ -32,5 +33,4 @@ jobs:
         run: echo "Some files failed the linting checks!" && exit 1
 
       - name: CMake Build
-        run: |
-          cmake --build build --config Debug -j 4
+        run: cmake --build build --config Debug -j 4

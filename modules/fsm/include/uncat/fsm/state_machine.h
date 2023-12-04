@@ -31,13 +31,14 @@ template <typename T> struct state_like<std::optional<T>>
 {
     using type = T;
 
-    auto static inline ready(std::optional<T> const & o) -> bool
+    auto inline static constexpr ready(std::optional<T> const & o) -> bool
     {
         return o.has_value();
     }
 
-    auto static inline value(std::optional<T> && o) -> T
+    auto inline static constexpr value(std::optional<T> && o) -> T
     {
+        // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
         return o.value();
     }
 };

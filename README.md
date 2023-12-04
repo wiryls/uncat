@@ -1,7 +1,7 @@
 # Some Uncat(egorized) CXX Code
 
-[![cpp-linter](https://github.com/cpp-linter/cpp-linter-action/actions/workflows/cpp-linter.yml/badge.svg)](https://github.com/wiryls/uncat/actions/workflows/build.yml)
 ![GitHub](https://img.shields.io/github/license/wiryls/uncat?label=license&logo=github)
+[![cpp-linter](https://github.com/cpp-linter/cpp-linter-action/actions/workflows/cpp-linter.yml/badge.svg)](https://github.com/wiryls/uncat/actions/workflows/build.yml)
 
 My C++ playground:
 

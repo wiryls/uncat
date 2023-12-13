@@ -1,9 +1,9 @@
 #pragma once
+#include <uncat/fsm/common.h>
+
 #include <optional>
 #include <type_traits>
 #include <variant>
-
-#include <uncat/fsm/common.h>
 
 namespace uncat::fsm::aux
 {

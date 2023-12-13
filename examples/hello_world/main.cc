@@ -1,11 +1,11 @@
+#include <uncat/cta/binary_tree.h>
+#include <uncat/cta/sort.h>
+#include <uncat/fsm/state_machine.h>
+
 #include <cstdint>
 #include <iostream>
 #include <optional>
 #include <utility>
-
-#include <uncat/cta/binary_tree.h>
-#include <uncat/cta/sort.h>
-#include <uncat/fsm/state_machine.h>
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
 auto main() -> int

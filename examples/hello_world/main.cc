@@ -1,3 +1,4 @@
+#include "uncat/cta/common.h"
 #include <uncat/cta/binary_tree.h>
 #include <uncat/cta/sort.h>
 #include <uncat/fsm/state_machine.h>
@@ -21,7 +22,7 @@ auto main() -> int
     }
     {
         using uncat::cta::binary_tree::node;
-        using tree = node<int, 0, node<int, 1, node<int, 3>>, node<int, 2, void, node<int, 4, node<int, 5>>>>;
+        using tree = node<0, node<1, node<3>>, node<2, void, node<4, node<5>>>>;
         /*     0
          *    / \
          *   1   2

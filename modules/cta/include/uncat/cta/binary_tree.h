@@ -4,7 +4,7 @@
 namespace uncat::cta::binary_tree
 {
 
-template <typename Type, Type value, typename Left = void, typename Right = void> struct node
+template <auto value, typename Left = void, typename Right = void> struct node
 {};
 
 } // namespace uncat::cta::binary_tree
@@ -20,43 +20,37 @@ enum struct order
     level,
 };
 
-template <typename I> struct any_order
+template <order o, typename... N> struct traversal;
+template <order o, typename... N> using traversal_t = typename traversal<o, N...>::type;
+
+template <order, typename... N> struct traversal
 {
-private:
-    template <I... xs> using list = list<I, xs...>;
+    using type = list<>;
+};
 
-public:
-    template <order, typename... N> struct traversal
-    {
-        using type = list<>;
-    };
+template <auto x, typename L, typename R> struct traversal<order::pre, node<x, L, R>>
+{
+    using type = join_t<list<x>, traversal_t<order::pre, L>, traversal_t<order::pre, R>>;
+};
 
-    template <order o, typename... N> using traversal_t = typename traversal<o, N...>::type;
+template <auto x, typename L, typename R> struct traversal<order::in, node<x, L, R>>
+{
+    using type = join_t<traversal_t<order::in, L>, list<x>, traversal_t<order::in, R>>;
+};
 
-    template <I x, typename L, typename R> struct traversal<order::pre, node<I, x, L, R>>
-    {
-        using type = join_t<list<x>, traversal_t<order::pre, L>, traversal_t<order::pre, R>>;
-    };
+template <auto x, typename L, typename R> struct traversal<order::post, node<x, L, R>>
+{
+    using type = join_t<traversal_t<order::post, L>, traversal_t<order::post, R>, list<x>>;
+};
 
-    template <I x, typename L, typename R> struct traversal<order::in, node<I, x, L, R>>
-    {
-        using type = join_t<traversal_t<order::in, L>, list<x>, traversal_t<order::in, R>>;
-    };
+template <typename... N> struct traversal<order::level, void, N...>
+{
+    using type = traversal_t<order::level, N...>;
+};
 
-    template <I x, typename L, typename R> struct traversal<order::post, node<I, x, L, R>>
-    {
-        using type = join_t<traversal_t<order::post, L>, traversal_t<order::post, R>, list<x>>;
-    };
-
-    template <typename... N> struct traversal<order::level, void, N...>
-    {
-        using type = traversal_t<order::level, N...>;
-    };
-
-    template <typename... N, I value, typename L, typename R> struct traversal<order::level, node<I, value, L, R>, N...>
-    {
-        using type = typename traversal_t<order::level, N..., L, R>::template push_front<value>;
-    };
+template <typename... N, auto value, typename L, typename R> struct traversal<order::level, node<value, L, R>, N...>
+{
+    using type = typename traversal_t<order::level, N..., L, R>::template push_front<value>;
 };
 
 } // namespace uncat::cta::binary_tree::aux
@@ -68,33 +62,33 @@ namespace uncat::cta::binary_tree
 template <typename T> struct pre_order
 {};
 
-template <typename I, I x, typename L, typename R> struct pre_order<node<I, x, L, R>>
+template <typename I, I x, typename L, typename R> struct pre_order<node<x, L, R>>
 {
-    using type = typename aux::any_order<I>::template traversal_t<aux::order::pre, node<I, x, L, R>>;
+    using type = aux::traversal_t<aux::order::pre, node<x, L, R>>;
 };
 
 template <typename T> struct in_order
 {};
 
-template <typename I, I x, typename L, typename R> struct in_order<node<I, x, L, R>>
+template <typename I, I x, typename L, typename R> struct in_order<node<x, L, R>>
 {
-    using type = typename aux::any_order<I>::template traversal_t<aux::order::in, node<I, x, L, R>>;
+    using type = aux::traversal_t<aux::order::in, node<x, L, R>>;
 };
 
 template <typename T> struct post_order
 {};
 
-template <typename I, I x, typename L, typename R> struct post_order<node<I, x, L, R>>
+template <typename I, I x, typename L, typename R> struct post_order<node<x, L, R>>
 {
-    using type = typename aux::any_order<I>::template traversal_t<aux::order::post, node<I, x, L, R>>;
+    using type = aux::traversal_t<aux::order::post, node<x, L, R>>;
 };
 
 template <typename N> struct level_order
 {};
 
-template <typename I, I x, typename L, typename R> struct level_order<node<I, x, L, R>>
+template <typename I, I x, typename L, typename R> struct level_order<node<x, L, R>>
 {
-    using type = typename aux::any_order<I>::template traversal_t<aux::order::level, node<I, x, L, R>>;
+    using type = aux::traversal_t<aux::order::level, node<x, L, R>>;
 };
 
 } // namespace uncat::cta::binary_tree
@@ -102,8 +96,8 @@ template <typename I, I x, typename L, typename R> struct level_order<node<I, x,
 namespace uncat
 {
 
-template <typename Type, Type value, typename Left = void, typename Right = void>
-using binary_tree_node = cta::binary_tree::node<Type, value, Left, Right>;
+template <auto value, typename Left = void, typename Right = void>
+using binary_tree_node = cta::binary_tree::node<value, Left, Right>;
 
 template <typename Node> using pre_order_traversal_t   = typename cta::binary_tree::pre_order<Node>::type;
 template <typename Node> using in_order_traversal_t    = typename cta::binary_tree::in_order<Node>::type;

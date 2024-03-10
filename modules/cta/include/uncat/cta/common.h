@@ -3,19 +3,6 @@
 namespace uncat::cta
 {
 
-namespace aux
-{
-
-template <auto... xs> struct typed_sequence_converter
-{};
-
-template <auto x, decltype(x)... xs> struct typed_sequence_converter<x, xs...>
-{
-    template <template <typename U, U...> class V> using to_typed = V<decltype(x), x, xs...>;
-};
-
-} // namespace aux
-
 // Output something like std::integer_sequence.
 template <typename O, template <typename X, X...> class T, typename I, I x, I... xs>
 auto static operator<<(O & oss, T<I, x, xs...> /* unused */) -> O &
@@ -32,13 +19,26 @@ auto static operator<<(O & oss, T<I> /* unused */) -> O &
 template <typename O, template <auto...> class T, auto x, auto... xs>
 auto static operator<<(O & oss, T<x, xs...> /* unused */) -> O &
 {
-    return oss << x, ((oss << ' ').operator<< /* become unary right fold */ (xs), ...);
+    return oss << x, ((oss << ' ').operator<<(xs), ...);
 }
 
 template <typename O, template <auto...> class T> auto static operator<<(O & oss, T<> /* unused */) -> O &
 {
     return oss;
 }
+
+namespace aux
+{
+
+template <auto... xs> struct typed_sequence_converter
+{};
+
+template <auto x, decltype(x)... xs> struct typed_sequence_converter<x, xs...>
+{
+    template <template <typename U, U...> class V> using to_typed = V<decltype(x), x, xs...>;
+};
+
+} // namespace aux
 
 // An integer_sequence like List.
 template <auto... xs> struct list : aux::typed_sequence_converter<xs...>

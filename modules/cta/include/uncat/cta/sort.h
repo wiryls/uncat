@@ -17,21 +17,13 @@ private:
 
         template <auto x, auto... xs, auto... ls, typename R>
         requires(!C<y, x>::value)
-        struct on<list<x, xs...>, list<ls...>, R>
-        {
-            using next  = on<list<xs...>, list<x, ls...>, R>;
-            using left  = typename next::left;
-            using right = typename next::right;
-        };
+        struct on<list<x, xs...>, list<ls...>, R> : on<list<xs...>, list<x, ls...>, R>
+        {};
 
         template <auto x, auto... xs, typename L, auto... rs>
         requires C<y, x>::value
-        struct on<list<x, xs...>, L, list<rs...>>
-        {
-            using next  = on<list<xs...>, L, list<x, rs...>>;
-            using left  = typename next::left;
-            using right = typename next::right;
-        };
+        struct on<list<x, xs...>, L, list<rs...>> : on<list<xs...>, L, list<x, rs...>>
+        {};
     };
 
     template <typename Input> struct sort

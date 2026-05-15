@@ -1,5 +1,5 @@
-#include "uncat/cta/common.h"
 #include <uncat/cta/binary_tree.h>
+#include <uncat/cta/common.h>
 #include <uncat/cta/sort.h>
 #include <uncat/fsm/state_machine.h>
 

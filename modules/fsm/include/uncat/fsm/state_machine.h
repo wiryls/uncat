@@ -31,15 +31,15 @@ template <typename T> struct state_like<std::optional<T>>
 {
     using type = T;
 
-    auto inline static constexpr ready(std::optional<T> const & o) -> bool
+    auto static constexpr ready(std::optional<T> const & o) -> bool
     {
         return o.has_value();
     }
 
-    auto inline static constexpr value(std::optional<T> && o) -> T
+    auto static constexpr value(std::optional<T> && o) -> T
     {
         // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-        return o.value();
+        return std::move(o).value();
     }
 };
 
@@ -147,6 +147,10 @@ public:
                                 state = operation::value(std::move(value));
                             return ready;
                         }
+                    }
+                    else
+                    {
+                        return false;
                     }
                 }
                 else /* make msvc happy */

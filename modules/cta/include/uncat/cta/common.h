@@ -5,24 +5,24 @@ namespace uncat::cta
 
 // Output something like std::integer_sequence.
 template <typename O, template <typename X, X...> class T, typename I, I x, I... xs>
-auto static operator<<(O & oss, T<I, x, xs...> /* unused */) -> O &
+auto operator<<(O & oss, T<I, x, xs...> /* unused */) -> O &
 {
     return oss << x, ((oss << ' ').operator<< /* become unary right fold */ (xs), ...);
 }
 
 template <typename O, template <typename X, X...> class T, typename I>
-auto static operator<<(O & oss, T<I> /* unused */) -> O &
+auto operator<<(O & oss, T<I> /* unused */) -> O &
 {
     return oss;
 }
 
 template <typename O, template <auto...> class T, auto x, auto... xs>
-auto static operator<<(O & oss, T<x, xs...> /* unused */) -> O &
+auto operator<<(O & oss, T<x, xs...> /* unused */) -> O &
 {
     return oss << x, ((oss << ' ').operator<<(xs), ...);
 }
 
-template <typename O, template <auto...> class T> auto static operator<<(O & oss, T<> /* unused */) -> O &
+template <typename O, template <auto...> class T> auto operator<<(O & oss, T<> /* unused */) -> O &
 {
     return oss;
 }
@@ -35,7 +35,13 @@ template <auto... xs> struct typed_sequence_converter
 
 template <auto x, decltype(x)... xs> struct typed_sequence_converter<x, xs...>
 {
-    template <template <typename U, U...> class V> using to_typed = V<decltype(x), x, xs...>;
+#if defined(_MSC_VER) && !defined(__clang__)
+    // Use auto... not U...: MSVC 14.50 rejects decltype(x) as non-type parameter type (C2972).
+    template <template <typename, auto...> class V>
+#else
+    template <template <typename U, U...> class V>
+#endif
+    using to_typed = V<decltype(x), x, xs...>;
 };
 
 } // namespace aux

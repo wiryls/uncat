@@ -19,13 +19,13 @@ TEST_CASE("coin operated turnstile", "[fsm]")
     struct coin_operated_turnstile
     {
         /// locked_state --coin_input--> unlocked_state
-        inline auto operator()(locked_state & /*unused*/, coin_input const & /*unused*/) -> unlocked_state
+        auto operator()(locked_state & /*unused*/, coin_input const & /*unused*/) -> unlocked_state
         {
             return {};
         }
 
         /// unlocked_state --push_input--> locked_state
-        inline auto operator()(unlocked_state & /*unused*/, push_input /*unused*/) -> locked_state
+        auto operator()(unlocked_state & /*unused*/, push_input /*unused*/) -> locked_state
         {
             return {};
         }

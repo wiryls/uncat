@@ -12,7 +12,7 @@ set(FETCHCONTENT_QUIET ON)
 FetchContent_Declare(
     catch
     GIT_REPOSITORY https://github.com/catchorg/Catch2
-    GIT_TAG         v3.4.0
+    GIT_TAG        v3.15.0
     GIT_SHALLOW    ON
     SYSTEM
     FIND_PACKAGE_ARGS NAMES Catch2)

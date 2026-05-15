@@ -7,6 +7,7 @@ namespace uncat::cta::binary_tree
 template <auto value, typename Left = void, typename Right = void> struct node
 {};
 
+// NOLINTNEXTLINE(performance-enum-size)
 enum struct order
 {
     pre,

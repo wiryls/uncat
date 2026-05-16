@@ -8,7 +8,6 @@
 #include <optional>
 #include <utility>
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
 auto main() -> int
 {
     using uncat::cta::operator<<;
@@ -39,7 +38,7 @@ auto main() -> int
     {
         using namespace uncat::fsm;
         using uncat::fsm::state_machine;
-        auto t = [](uint8_t, uint16_t) { return std::optional<uint32_t>(0); };
+        auto t = [](uint8_t, uint16_t) -> std::optional<uint32_t> { return {0}; };
         auto m = state_machine<decltype(t), std::tuple<uint8_t, uint32_t, uint16_t>>();
         std::cout << std::boolalpha << m.input(uint16_t()) << '\n';
     }
